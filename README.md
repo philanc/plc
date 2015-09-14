@@ -1,10 +1,10 @@
-# PLC - Pure Lua Crypto
+## PLC - Pure Lua Crypto
 
-@@@  Incomplete work in progress!!  @@@
+### @@@  Incomplete work in progress!!  @@@
 
 A small collection of crpytographic functions, and related utilities, implemented  in pure Lua  (version 5.3 or above)
 
-## Objective
+### Objective
 
 Collect in one place standalone implementation of well-known, and/or useful,  and/or interesting cryptographic algorithms.
 
@@ -29,7 +29,7 @@ What this collection is *not*:
 *  memory-safe algorithms  -- Lua immutable strings are used and garbage-collected as needed. No guarantee is made that information, and in particular key material, is properly erased when no longer needed or do not leak.
 
 
-## Functions
+### Functions
 
 * RC4 - for lightweight, low strength encryption. Can also be used as a simple pseudo-random number generator.
 
@@ -62,14 +62,14 @@ What is not in the cards (except if some nice implementation is graciously contr
 * NIST Elliptic Curve stuff
 
 
-## Test vectors, tests, and disclaimer
+### Test vectors, tests, and disclaimer
 
 Some simplistic tests are provided in the 'test' directory. 
 
 The implementations should pass the tests, but beyond that, there is no guarantee that these implementations conform to anything  :-)  -- Use at your own risk!
 
 
-## License
+### License
 
 Except for some third-party implementations distributed under their specific terms, all the files included here are distributed under the MIT License (see file LICENSE)
 
