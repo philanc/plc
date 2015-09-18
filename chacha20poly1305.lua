@@ -1,6 +1,3 @@
--- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
-
-------------------------------------------------------------
 --[[
 Chacha20 + Poly1305
 
@@ -104,12 +101,17 @@ local function qround(st,x,y,z,w)
 	return st
 end
 
+-- chacha20 state and working state are allocated once and reused
+-- by each invocation of chacha20_block()
+local chacha20_state = {} 
+local chacha20_working_state = {} 	 
+
 local chacha20_block = function(key, counter, nonce)
 	-- key: u32[16]
 	-- counter: u32
 	-- nonce: u32[3]
-	local st = {} -- state
-	local wst = {} -- working_state
+	local st = chacha20_state 		-- state
+	local wst = chacha20_working_state 	-- working state
 	-- initialize state
 	st[1], st[2], st[3], st[4] = 
 		0x61707865, 0x3320646e, 0x79622d32, 0x6b206574
@@ -156,7 +158,8 @@ local chacha20_encrypt_array = function(key, counter, nonce, pta)
 end --chacha20_encrypt_array()
 
 local chacha20_encrypt = function(key, counter, nonce, pt)
-	-- counter is u32
+	-- encrypt plain text 'pt', return encrypted text
+	counter = counter & 0xffffffff  -- counter is u32
 	assert(#key == 32, "#key must be 32")
 	assert(#nonce == 12, "#nonce must be 12")
 	local keya = stou32a(key)
@@ -393,8 +396,27 @@ local chacha20_aead_encrypt = function(aad, key, iv, constant, plain)
 	return encr, tag
 end --chacha20_aead_encrypt()
 
-local function chacha20_aead_decrypt()
-	error("Not yet implemented!")
+local function chacha20_aead_decrypt(aad, key, iv, constant, encr, tag)
+	-- (memory inefficient - encr text is copied in mac_data)
+	-- (structure similar to aead_encrypt => what could be factored?)
+	local mt = {} -- mac_data table
+	local nonce = constant .. iv
+	local otk = poly_keygen(key, nonce)
+	local plain = chacha20_encrypt(key, 1, nonce, encr)
+	app(mt, aad) 
+	app(mt, pad16(aad)) 
+	app(mt, encr) 
+	app(mt, pad16(encr)) 
+	app(mt, string.pack('<I8', #aad))
+	app(mt, string.pack('<I8', #encr))
+	local mac_data = table.concat(mt)
+	local mac = poly_auth(mac_data, otk)
+	if mac == tag then 
+		local plain = chacha20_encrypt(key, 1, nonce, encr)
+		return plain
+	else
+		return nil, "auth failed"
+	end
 end --chacha20_aead_decrypt()
 
 
