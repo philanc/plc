@@ -1,130 +1,73 @@
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
 
 ------------------------------------------------------------
--- misc binary data utilities: 
---	display hex data
---  convert to/from u32 arrays
---	xor binary strings
+--[[ 
 
--- WARNING: API IS GOING TO CHANGE (A LOT!) :-)
+bin: misc binary data utilities: 
+
+stohex  - encode a string as a hex string
+hextos 	- decode a hex string
+
+xor1	- xor a string with a key (repeated as needed)
+xor64	- same as xor1, but more efficient, memory-wise
 
 
-local spack, sunpack = string.pack, string.unpack
-local byte, char, concat = string.byte, string.char, table.concat
+]]
+
 local strf = string.format
+local byte, char = string.byte, string.char
+local concat = table.concat
 
-local function hex16(s, sep, prefix)
-	sep = sep or " " -- optional separator between each byte
-	prefix = prefix or "" -- optional prefix at beginning of each line
-	local linesep = "\n" .. prefix
-	local t = list()
-	t:app(prefix)
+local function stohex(s, ln, sep)
+	-- stohex(s [, ln [, sep]])
+	-- return the hex encoding of string s
+	-- ln: (optional) a newline is inserted after 'ln' bytes 
+	--	ie. after 2*ln hex digits. Defaults to no newlines.
+	-- sep: (optional) separator between bytes in the encoded string
+	--	defaults to nothing (if ln is nil, sep is ignored)
+	-- example: 
+	--	stohex('abcdef', 4, ":") => '61:62:63:64\n65:66'
+	--	stohex('abcdef') => '616263646566'
+	--
+	if not ln then -- no newline, no separator: do it the fast way!
+		return s:gsub('.', 
+			function(c) return strf('%02x', byte(c)) end
+			)
+	end
+	sep = sep or "" -- optional separator between each byte
+	local t = {}
 	for i = 1, #s - 1 do
-		t:app(strf("%02x", s:byte(i)))
-		t:app((i%16 == 0) and linesep or sep) 
+		t[#t + 1] = strf("%02x%s", s:byte(i),
+				(i % ln == 0) and '\n' or sep) 
 	end
 	-- last byte, without any sep appended
-	t:app(strf("%02x", s:byte(#s)))
-	return t:join("")
-end
+	t[#t + 1] = strf("%02x", s:byte(#s))
+	return concat(t)	
+end --stohex()
 
-
-local function p16(msg, s, sep, prefix) 
-	print(msg); print(hex16(s, sep, prefix)) 
-end
-
-local function hexbb32(bb, sep, prefix)
-	sep = sep or " " -- optional separator between each word
-	prefix = prefix or "" -- optional prefix at beginning of each line
-	local linesep = "\n" .. prefix
-	local t = list()
-	t:app(prefix)
-	for i = 1,#bb do
-		t:app(strf("%08x", bb[i]))
-		t:app((i%4 == 0) and linesep or sep)
-	end
-	return t:join("")
-end
-
-local function pbb32(msg, s, sep, prefix) 
-	print(msg); print(hexbb32(s, sep, prefix)) 
-end
-
-local function stobb32(s, pad)
-	-- string -> bb32: array of u32 (little endian)
-	-- pad (optional): add null bytes at end of block to ensure
-	--   that the number of bytes in array is a multiple of pad
-	--   eg. stobb32(s, 16) to have complete 16-byte blocks
-	--   pad must be a multiple of 4.
-	-- upon return, bb32.unused = total number of padding bytes added
-	-- ie. after execution: #s + bb32.unused = #bb32 * 4
-	local bb = {}
-	local j = 1
-	local lbn = #s % 4 --remaining bytes beyond the last full word
-	local wn = #s // 4 --number of full words 
-	for i = 1, wn do
-		bb[i], j = sunpack('<I4', s, j)
-	end
-	-- process last bytes if any
-	if lbn > 0 then
-		local es = string.sub(s, j)
-		for i = lbn, 4 do es = es .. '\0' end
-		wn = wn + 1
-		bb[wn] = sunpack('<I4', es)
-		bb.unused = 4 - lbn
-	else
-		bb.unused = 0
-	end
---~ 	print('stobb', #s, bb.unused, #bb)
-	assert( #s + bb.unused == #bb * 4 )
-	return bb
-end
-
-local function bb32pad(bb, bytepad)
-	-- add null words at end of the bb array to ensure
-	--   that the total number of bytes in array is a multiple of pad.
-	--   eg. bb32pad(bb, 16) to have complete 16-byte blocks.
-	--   pad must be a multiple of 4.
-	-- pad if necessary
-	local wn = #bb
-	local wpad = bytepad // 4 
-	rwn = wn % wpad
-	if rwn > 0 then 
-		for i = 1, wpad - rwn do
-			bb[wn + i] = 0
-			bb.unused = bb.unused + 4
+local function hextos(hs, unsafe)
+	-- decode an hex encoded string. return the decoded string
+	-- if optional parameter unsafe is defined, assume the hex
+	-- string is well formed (no checks, no whitespace removal).
+	-- Default is to remove white spaces (incl newlines)
+	-- and check that the hex string is well formed
+	local tonumber = tonumber
+	if not unsafe then
+		s = string.gsub(s, "%s+", "") -- remove whitespaces
+		if string.find(hs, '[^0-9A-Za-z]') or hs % 2 ~= 0 then
+			error("invalid hex string")
 		end
 	end
-	return bb
-end --bb32pad
+	return s:gsub(	'(%x%x)', 
+		function(c) return char(tonumber(c, 16)) end
+		)
+end -- hextos
 
-local function bb32tos(bb)
-	-- bb -> string
-	-- assume bb has been created by stobb32
-	-- the last bb.unused bytes in bb are not included in string
-	--  => #s == #bb * 4 - bb.unused)
-	local u
-	local t = {}
-	local lfi = #bb - (bb.unused // 4) -- index of last full word
-	for i = 1, lfi do
-		t[i] = spack('<I4', bb[i])
-	end
-	-- rbn = number of bytes in the last non-full word, if any
-	local rbn = 4 - bb.unused % 4  
-	rbn = (rbn == 4) and 0 or rbn
---~ 	print(222, rbn)
-	-- process these last bytes
-	if rbn > 0 then
-		-- this works because words are packed as little endian
-		t[lfi] = string.sub(t[lfi], 1, rbn) 
-	end
-	local s = table.concat(t)
---~ 	print('bbtos', #s, bb.unused, #bb)
-	assert( #s == #bb * 4 - bb.unused )
-	return s
-end
 
 local function xor1(key, plain)
+	-- return a string which is a xor of plain and key
+	-- plain and key may have arbitrary length.
+	-- the result has the same length as plain.
 	-- naive implementation, one byte at a time
 	local t = {}
 	local ki, kln = 1, #key
@@ -137,7 +80,10 @@ local function xor1(key, plain)
 end --xor1
 
 local function xor64(key, plain)
-	-- build result one 64-byte block at a time
+	-- return a string which is a xor of plain and key
+	-- functionnaly equivalent to xor1().
+	-- result is built one 64-byte block at a time (more efficient, 
+	-- especially memory-wise)
 	local concat = table.concat
 	local pln = #plain
 	local lbbn = pln % 64 	--number of bytes in last block
@@ -169,13 +115,10 @@ end --xor64
 
 
 return  { -- bin module
-	hex16 = hex16,
-	hexbb32 = hexbb32,
-	p16 = p16,
-	pbb32 = pbb32,
-	stobb32 = stobb32,
-	bb32tos = bb32tos,
-	bb32pad = bb32pad,
+	stohex = stohex,
+	hextos = hextos,
+	--
 	xor1 = xor1,
 	xor64 = xor64,
+	--
 	}
