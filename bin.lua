@@ -12,6 +12,7 @@ xor1	- xor a string with a key (repeated as needed)
 xor64	- same as xor1, but more efficient, memory-wise
 
 
+
 ]]
 
 local strf = string.format

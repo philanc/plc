@@ -19,7 +19,8 @@ strings. Base64 can encode long strings 3 bytes at a time.
 On the contrary, Base58 treats the string to be encoded as a long number 
 encoded in Base256 (each byte is a digit) and perform an arithmetic 
 conversion of this long number to base58. 
-	
+
+
 ]]
 
 

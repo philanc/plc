@@ -39,7 +39,11 @@ What this collection is *not*:
 
 * SHA3 cryptographic hash family (formerly known as Keccak - 256-bit and 512-bit versions)
 
-* (un)related utilities: Base64 and Hex encoding/decoding, Base58, non-cryptographic checksums (CRC-32, Adler-32), ...
+Some (un)related utilities: 
+
+* Base64, Base58  and Hex encoding/decoding
+
+* Non-cryptographic checksums (CRC-32, Adler-32), ...
 
 Implementations to come:
 
@@ -57,9 +61,10 @@ What is not in the cards (except if some nice implementation is graciously contr
 
 * an arbitrary length integer arithmetic library
 
-* RSA (focusing on ec25519 for public key, key exchange)
+* RSA  -- rather focusing on ec25519 for public key and key exchange
 
-* NIST Elliptic Curve stuff
+* All the NIST suite B ECC algorithms
+
 
 
 ### Test vectors, tests, and disclaimer
