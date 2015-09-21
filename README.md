@@ -47,7 +47,7 @@ Some (un)related utilities:
 
 Implementations to come:
 
-* NaCl - an implementation of Dan Bernstein et al' Salsa20-Poly1305 authenticated stream encryption plus public key encryption based on elliptic curve ec25519. 
+* NaCl - an implementation of Dan Bernstein et al' Salsa20-Poly1305 authenticated stream encryption plus public key encryption based on elliptic curve ec25519, including ECDH key exchange 
 
 * SHA2-512
 
