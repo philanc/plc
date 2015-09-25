@@ -101,4 +101,6 @@ test_scalarmult()
 test_scalarmult_base()
 test_kexch()
 
+print("test_ec25519: ok")
+
 

@@ -74,7 +74,9 @@ local function rc4raw(key, plain)
 end
 
 local function rc4(key, plain, drop)
-	-- optional drop (default = 256) - ignore first 'drop' iterations
+	-- encrypt 'plain', return encrypted text
+	-- key must be a 16-byte string
+	-- optional drop (default = 256): ignore first 'drop' iterations
 	drop = drop or 256
 	local s = keysched(key)
 	local i, j = 0, 0
@@ -95,4 +97,6 @@ end
 return 	{ -- module
 	rc4raw = rc4raw,
 	rc4 = rc4,
+	encrypt = rc4,
+	decrypt = rc4,
 	}
