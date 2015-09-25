@@ -5,12 +5,12 @@
 
 ec25519 - curve25519 scalar multiplication
 
-ported to Lua from the original C tweetnacl implementation, 
+Ported to Lua from the original C tweetnacl implementation, 
 (public domain, by Dan Bernstein, Tanja Lange et al
 see http://tweetnacl.cr.yp.to/ )
 
-to make debug and validation easier, the original code structure
-and function names has been kept as much as possible.
+To make debug and validation easier, the original code structure
+and function names have been conserved as much as possible.
 
 ]]
 
