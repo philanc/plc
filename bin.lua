@@ -56,12 +56,12 @@ local function hextos(hs, unsafe)
 	-- and check that the hex string is well formed
 	local tonumber = tonumber
 	if not unsafe then
-		s = string.gsub(s, "%s+", "") -- remove whitespaces
-		if string.find(hs, '[^0-9A-Za-z]') or hs % 2 ~= 0 then
+		hs = string.gsub(hs, "%s+", "") -- remove whitespaces
+		if string.find(hs, '[^0-9A-Za-z]') or #hs % 2 ~= 0 then
 			error("invalid hex string")
 		end
 	end
-	return s:gsub(	'(%x%x)', 
+	return hs:gsub(	'(%x%x)', 
 		function(c) return char(tonumber(c, 16)) end
 		)
 end -- hextos

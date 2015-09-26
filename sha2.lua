@@ -147,8 +147,10 @@ end --digestblock()
 local function finalresult256 (H)
   -- Produce the final hash value (big-endian):
   return
-    str2hexa(num24(H[1])..num24(H[2])..num24(H[3])..num24(H[4])..
-             num24(H[5])..num24(H[6])..num24(H[7])..num24(H[8]))
+--~     str2hexa(num24(H[1])..num24(H[2])..num24(H[3])..num24(H[4])..
+--~              num24(H[5])..num24(H[6])..num24(H[7])..num24(H[8]))
+	(	num24(H[1])..num24(H[2])..num24(H[3])..num24(H[4])
+	..	num24(H[5])..num24(H[6])..num24(H[7])..num24(H[8]))
 end
 
 ----------------------------------------------------------------------

@@ -33,21 +33,26 @@ What this collection is *not*:
 
 * RC4 - for lightweight, low strength encryption. Can also be used as a simple pseudo-random number generator.
 
-* Chacha20-Poly1305 - for authenticated stream encryption, as defined in RFC 7539
+* Chacha20, Poly1305 and authenticated stream encryption, as defined in RFC 7539
+
+* Elliptic curve cryptography: ec25519 (only low-level functions for the moment - barely enough to implement ECDH key exchange)
 
 * SHA2 cryptographic hash family (only sha256 for the moment)
 
 * SHA3 cryptographic hash family (formerly known as Keccak - 256-bit and 512-bit versions)
 
+* Non-cryptographic checksums (CRC-32, Adler-32), ...
+
 Some (un)related utilities: 
 
 * Base64, Base58  and Hex encoding/decoding
 
-* Non-cryptographic checksums (CRC-32, Adler-32), ...
 
 Implementations to come:
 
-* NaCl - an implementation of Dan Bernstein et al' Salsa20-Poly1305 authenticated stream encryption plus public key encryption based on elliptic curve ec25519, including ECDH key exchange 
+* Salsa20 stream encryption (should be close to the Chacha20 implementation)
+
+* NaCl - Dan Bernstein et al' Salsa20-Poly1305 authenticated stream encryption plus public key encryption based on elliptic curve ec25519, including ECDH key exchange, with a high level API (box(), secretbox())
 
 * SHA2-512
 
