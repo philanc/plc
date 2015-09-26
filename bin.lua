@@ -1,5 +1,4 @@
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
-
 ------------------------------------------------------------
 --[[ 
 
@@ -7,6 +6,9 @@ bin: misc binary data utilities:
 
 stohex  - encode a string as a hex string
 hextos 	- decode a hex string
+
+rotr32	- rotate right the 32 lower bits of an integer (int64)
+rotl32	- rotate left the 32 lower bits of an integer 
 
 xor1	- xor a string with a key (repeated as needed)
 xor64	- same as xor1, but more efficient, memory-wise
@@ -63,6 +65,18 @@ local function hextos(hs, unsafe)
 		function(c) return char(tonumber(c, 16)) end
 		)
 end -- hextos
+
+local function rotr32(i, n)
+	-- rotate right on 32 bits
+	return ((i >> n) | (i << (32 - n))) & 0xffffffff
+end
+
+local function rotl32(i, n)
+	-- rotate left on 32 bits
+	return ((i << n) | (i >> (32 - n))) & 0xffffffff
+end
+
+
 
 
 local function xor1(key, plain)
