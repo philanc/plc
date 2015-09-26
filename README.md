@@ -1,7 +1,5 @@
 ## PLC - Pure Lua Crypto
 
-### @@@  Incomplete work in progress!!  @@@
-
 A small collection of crpytographic functions, and related utilities, implemented  in pure Lua  (version 5.3 or above)
 
 ### Objective
@@ -64,9 +62,9 @@ What may come someday:
 
 What is not in the cards (except if some nice implementation is graciously contributed!):
 
-* an arbitrary length integer arithmetic library
+* Arbitrary length integer arithmetic
 
-* RSA  -- rather focusing on ec25519 for public key and key exchange
+* RSA  (-- rather focusing on ec25519 for public key and key exchange)
 
 * All the NIST suite B ECC algorithms
 
