@@ -1,5 +1,10 @@
--- Based on Keccak implementation byJoseph Wallace 
--- published on the Lua mailinglist
+-- Copyright (c) 2014  Joseph Wallace
+-- Copyright (c) 2015  Phil Leblanc  
+-- License: MIT - see LICENSE file
+------------------------------------------------------------
+
+-- Directly devived from a Keccak implementation by Joseph Wallace
+-- published on the Lua mailing list in 2014
 -- http://lua-users.org/lists/lua-l/2014-03/msg00905.html
 
 -- 150827 original code modified and optimized 

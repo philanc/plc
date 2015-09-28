@@ -1,10 +1,14 @@
--- published by Roberto Ierusalimschy on the Lua mailinglist
+-- Copyright (c) 2015  Roberto Ierusalimschy
+-- published by  Roberto on the Lua mailinglist
 -- http://lua-users.org/lists/lua-l/2014-03/msg00851.html
+-- can be distributed under the MIT License terms. see:
+--http://lua-users.org/lists/lua-l/2014-08/msg00628.html
+------------------------------------------------------------
 
 
--- 150827 
 -- written by Roberto for an early 5.3 rc with (un)packint()
 -- adapted to 5.3 (string.(un)pack()) --phil, 150827
+
 
 ------------------------------------------------------------
 -- sha2  (hash256)
