@@ -1,7 +1,7 @@
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
 ------------------------------------------------------------
 
--- test performance
+-- crude performance tests
 
 
 
@@ -155,6 +155,7 @@ perf_misc()
 (tests on laptop - Linux 3.10, CPU i5 M430 @ 2.27 GHz)
 
 20151009 
+
 Plain text size (in MBytes):	10
 Times:  elapsed (wall) and CPU (clock) in seconds
 - rabbit                   10      9.53
@@ -171,7 +172,7 @@ Times:  elapsed (wall) and CPU (clock) in seconds
 - base64 encode            13     12.60   (res: 13.3MB)
 - base64 decode             8      8.67   (res: 7.5MB)
 - adler-32                  3      2.62   
-- crc-32                    3      3.68   
+- crc-32                    4      3.68   
 - crc-32 (no table)        12     11.30   
 - poly1305 hmac             2      1.89   
 
