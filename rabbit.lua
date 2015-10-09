@@ -36,20 +36,17 @@ http://www.ecrypt.eu.org/ecrypt2/
 ]]
 
 ------------------------------------------------------------------------
+-- debug functions (should be removed)
 
 local function pf(...) print(string.format(...)) end
 
 local function pst(st)
 	local x,c = st.x, st.c
+	-- same presentation as in RFC 4503 appendix B
 	pf('X0 %08X  %08X  %08X  %08X', x[1],x[2],x[3],x[4])
 	pf('X4 %08X  %08X  %08X  %08X', x[5],x[6],x[7],x[8])
 	pf('C0 %08X  %08X  %08X  %08X', c[1],c[2],c[3],c[4])
 	pf('C4 %08X  %08X  %08X  %08X', c[5],c[6],c[7],c[8])
---~ 	pf'--'
---~ 	for i = 1,8 do
---~ 		pf("x[%d]:  %08X     c[%d]:  %08X", 
---~ 			i, st.x[i], i, st.c[i] )
---~ 	end
 	print'--'
 end	
 ------------------------------------------------------------------------
