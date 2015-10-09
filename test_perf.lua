@@ -92,10 +92,6 @@ local function perf_encrypt()
 	et = bin.xor64(k16, plain)	
 	done()
 
-	-- base58
---~ 	for i = 1,100 do local x = base58.encode(('a'):rep(256)) end
-	-- 100 x encode 512bytes on hp ~ 12.1 sec  --  256bytes ~ 3.2 sec
-	
 end --perf_encrypt
 
 local function perf_sha2_sha3()
