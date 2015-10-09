@@ -1,8 +1,7 @@
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
 ------------------------------------------------------------------------
 --[[ 	
-					** WORK IN PROGRESS **
-
+					
 Rabbit stream cipher
 
 Rabbit was one of the four eSTREAM finalists in 2008 
