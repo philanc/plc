@@ -1,6 +1,6 @@
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
+------------------------------------------------------------------------
 
-------------------------------------------------------------
 -- base64 encode / decode
 
 local spack, sunpack = string.pack, string.unpack
