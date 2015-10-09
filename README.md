@@ -2,6 +2,10 @@
 
 A small collection of crpytographic functions, and related utilities, implemented  in pure Lua  (version 5.3 or above)
 
+### Recent changes
+
+2015-10-09 &mdash; Added *Rabbit*, a very fast stream encryption algorithm.
+
 ### Objective
 
 Collect in one place standalone implementation of well-known, and/or useful,  and/or interesting cryptographic algorithms.
@@ -30,6 +34,8 @@ What this collection is *not*:
 ### Functions
 
 * RC4 - for lightweight, low strength encryption. Can also be used as a simple pseudo-random number generator.
+
+* Rabbit, a very fast stream cipher, selected in the eSTREAM portfolio along with Salsa20, and defined in RFC 4503 (see informations and links in rabbit.lua)
 
 * Chacha20, Poly1305 and authenticated stream encryption, as defined in RFC 7539
 
