@@ -2,9 +2,21 @@
 ------------------------------------------------------------------------
 --[[ 		** WORK IN PROGRESS  --  CANNOT BE USED AS-IS **
 					
-XTEA block cipher
+XTEA module
 
-Designed by Roger Needham and David Wheeler in 1997
+-- main API (stream encryption in CTR mode)
+encrypt		- encrypt a string 
+decrypt		- decrypt a string (an alias for encrypt)
+
+-- core functions (maybe used for other modes or special use cases)
+keysetup	- setup an XTEA key (pre-computes constants)
+encrypt_u64	- encrypt a 8-byte block (encoded as a uint64)
+decrypt_u64	- decrypt a 8-byte block (encoded as a uint64)
+
+------------------------------------------------------------------------
+
+The XTEA block cipher was designed by Roger Needham 
+and David Wheeler in 1997
 
 see Wikipedia page
 https://en.wikipedia.org/wiki/XTEA
@@ -30,17 +42,9 @@ local function p8(b) print(string.format("%016x", b)) end
 local spack, sunpack = string.pack, string.unpack
 local app, concat = table.insert, table.concat
 
-local function rotr32(i, n)
-	-- rotate right on 32 bits
-	return ((i >> n) | (i << (32 - n))) & 0xffffffff
-end
-
-local function rotl32(i, n)
-	-- rotate left on 32 bits
-	return ((i << n) | (i >> (32 - n))) & 0xffffffff
-end
-
 ------------------------------------------------------------------------
+-- core XTEA encryption/decryption
+
 local ROUNDS = 32
 
 local function keysetup(key)
@@ -60,92 +64,112 @@ local function keysetup(key)
 	return { skt0=skt0, skt1=skt1, }
 end
 
-local function encryptblock(st, b)
+local function encrypt_u64(st, bu)
 	-- st: state, produced by keysetup
-	-- b: 64-bit block as a 8-byte string
-	--
-	local skt0, skt1 = st.skt0, st.skt1
-	-- interpret b as two big endian uint32
-	local v0, v1 = sunpack(">I4I4", b)
-	local sum, delta = 0, 0x9E3779B9
-	for i = 1, ROUNDS do
-		v0 = (v0 + ((((v1<<4) ~ (v1>>5)) + v1) ~ skt0[i])) & 0xffffffff
-		v1 = (v1 + ((((v0<<4) ~ (v0>>5)) + v0) ~ skt1[i])) & 0xffffffff
-	end
-	b = spack(">I4I4", v0, v1) -- big endian
-	return b
-end
-
-local function encryptu64(st, b)
-	-- st: state, produced by keysetup
-	-- b: 64-bit block as a uint64 (big endian - unpack with ">I8")
+	-- ub: 64-bit block as a uint64 (big endian - unpack with ">I8")
 	local skt0, skt1 = st.skt0, st.skt1
 	-- xtea works on big endian numbers: v0 is MSB, v1 is LSB
-	local v0, v1 = b >> 32, b & 0xffffffff
+	local v0, v1 = bu >> 32, bu & 0xffffffff
 --~ 	p8(v0);p8(v1);p8(b)	
 	local sum, delta = 0, 0x9E3779B9
 	for i = 1, ROUNDS do
 		v0 = (v0 + ((((v1<<4) ~ (v1>>5)) + v1) ~ skt0[i])) & 0xffffffff
 		v1 = (v1 + ((((v0<<4) ~ (v0>>5)) + v0) ~ skt1[i])) & 0xffffffff
 	end
-	b = (v0 << 32) | v1
-	return b
+	bu = (v0 << 32) | v1
+	return bu
 end
 
-local function decryptblock(st, b)
+local function decrypt_u64(st, bu)
 	-- st: state, produced by keysetup
-	-- b: 64-bit encrypted block as a 16-byte string
-	-- returns decrypted block as a 16-byte string
-	local skt0, skt1 = st.skt0, st.skt1
-	local v0, v1 = sunpack(">I4I4", b)
-	local sum, delta = 0, 0x9E3779B9
-	for i = ROUNDS, 1, -1 do
-		v1 = (v1 - ((((v0<<4) ~ (v0>>5)) + v0) ~ skt1[i])) & 0xffffffff
-		v0 = (v0 - ((((v1<<4) ~ (v1>>5)) + v1) ~ skt0[i])) & 0xffffffff
-	end
-	b = spack(">I4I4", v0, v1) -- big endian
-	return b
-end
-
-local function decryptu64(st, b)
-	-- st: state, produced by keysetup
-	-- b: 64-bit encrypted block as a uint64 (big endian)
+	-- bu: 64-bit encrypted block as a uint64 (big endian)
 	-- returns decrypted block as a uint64
 	local skt0, skt1 = st.skt0, st.skt1
-	local v0, v1 = b >> 32, b & 0xffffffff
+	local v0, v1 = bu >> 32, bu & 0xffffffff
 	local sum, delta = 0, 0x9E3779B9
 	for i = ROUNDS, 1, -1 do
 		v1 = (v1 - ((((v0<<4) ~ (v0>>5)) + v0) ~ skt1[i])) & 0xffffffff
 		v0 = (v0 - ((((v1<<4) ~ (v1>>5)) + v1) ~ skt0[i])) & 0xffffffff
 	end
-	b = (v0 << 32) | v1
-	return b
+	bu = (v0 << 32) | v1
+	return bu
 end
 
-local function encrypt(key, plain)
-	-- encrypt a text 
+-- to encrypt/decrypt an 8-byte string (eg. for ECB mode),
+-- use the following:
+-- encrypt:  spack(">I8", encrypt_u64(st, sunpack(">I8", b)))
+-- decrypt:  spack(">I8", decrypt_u64(st, sunpack(">I8", b)))
+
+-- convenience functions: same core encryption/decryption
+-- but the block parameter is a 8-byte string instead of a uint64
+-- [hmm, not sure I will keep these two...]
+
+local function encrypt_s8(st, b)
+	return spack(">I8", encrypt_u64(st, sunpack(">I8", b)))
+end
+
+local function decrypt_s8(st, b)
+	return spack(">I8", decrypt_u64(st, sunpack(">I8", b)))
+end
+
+
+------------------------------------------------------------------------
+-- stream encryption
+
+local function xtea_ctr(key, iv, itxt)
+	-- encrypt/decrypt a text (stream en/decryption in CTR mode
+	--   (the counter is the index in the input text. It is XORed 
+	--	  with the IV at each block )
 	-- key is a 16-byte string
-	-- plain is the text to encrypt
-	
-end --encrypt
+	-- iv is a 8-byte string
+	-- itxt is the text to encrypt/decrypt
+	-- returns the encrypted/decrypted text
+	--
+	assert(#key == 16, "bad key length")
+	assert(#iv == 8, "bad IV length")
+	-- special case: empty string
+	if #itxt == 0 then return "" end
+	local ivu = sunpack("<I8", iv) -- IV as a uint64
+	local ot = {}  -- a table to collect output
+	local rbn = #itxt   -- number of remaining bytes
+	local ksu  	-- keystream for one plain block, as a uint64
+	local ibu	-- an input block, as a uint64
+	local ob	-- an output block as a string
+	local st = keysetup(key)
+	for i = 1, #itxt, 8 do
+		ksu = encrypt_u64(st, ivu ~ i)
+		if rbn < 8 then 
+			local buffer = string.sub(itxt, i) .. string.rep('\0', 8 - rbn)
+			ibu = sunpack("<I8", buffer)
+			ob = string.sub(spack("<I8", ibu ~ ksu), 1, rbn)
+		else 
+			ibu = sunpack("<I8", itxt, i)
+			ob = spack("<I8", ibu ~ ksu)
+			rbn = rbn - 8
+		end
+		app(ot, ob)
+	end
+	return concat(ot)
+end --xtea_ctr
 
-local function decrypt(key, plain)
-
-end
 
 ------------------------------------------------------------------------
 return { -- xtea module
-	encrypt = encrypt, 
-	decrypt = decrypt, 
 	--
+	-- main API (stream encryption)
+	xtea_ctr = xtea_ctr,
+	encrypt = xtea_ctr, 
+	decrypt = xtea_ctr, 
+	--
+	-- cipher parameters
 	key_size = 16,	-- 128 bits
 	block_size = 8,	-- 64 bits
 	--
+	-- raw functions for more complex scenarios
 	keysetup = keysetup,
-	encryptblock = encryptblock,
-	encryptu64 = encryptu64,
-	decryptblock = decryptblock,
-	decryptu64 = decryptu64,
-	
+	encrypt_u64 = encrypt_u64,
+	decrypt_u64 = decrypt_u64,
+	encrypt_s8 = encrypt_s8,	-- not sure it will stay...
+	decrypt_s8 = decrypt_s8,	-- not sure it will stay...
+
 }
-	

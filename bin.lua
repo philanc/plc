@@ -32,6 +32,7 @@ local function stohex(s, ln, sep)
 	--	stohex('abcdef', 4, ":") => '61:62:63:64\n65:66'
 	--	stohex('abcdef') => '616263646566'
 	--
+	if #s == 0 then return "" end
 	if not ln then -- no newline, no separator: do it the fast way!
 		return s:gsub('.', 
 			function(c) return strf('%02x', byte(c)) end

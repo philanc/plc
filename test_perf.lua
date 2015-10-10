@@ -30,6 +30,7 @@ local sha2 = require "sha2"
 local sha3 = require "sha3"
 local poly = require "poly1305"
 local chk = require "checksum"
+local xtea = require "xtea"
 
 local base64 = require "base64"
 local base58 = require "base58"
@@ -55,9 +56,9 @@ local size = mega * sizemb
 local plain = ('a'):rep(size)
 local k32 = ('k'):rep(32)
 local k16 = ('k'):rep(16)
+local iv8 = ('i'):rep(8)
 
 local function perf_encrypt()
-	local iv8 = ('i'):rep(8)
 	local nonce = ('n'):rep(12)
 	local counter = 1
 	local aad = "\x50\x51\x52\x53\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7"
@@ -145,19 +146,40 @@ local function perf_misc()
 
 end --perf_misc
 
+local function perf_xtea()
+	local sub = string.sub
+	local et
+	--
+	start("xtea ctr")
+	et = xtea.encrypt(k16, iv8, plain)
+	done()
+	--
+	start("xtea (encr block only)")
+	local st = xtea.keysetup(k16)
+	for i = 1, #plain//8 do 
+		xtea.encrypt_u64(st, 0xaaaa5555aaaa5555) 
+	end
+	done()
+	--
+end	--perf_xtea
 
 --~ perf_encrypt()
 --~ perf_sha2_sha3()
-perf_misc()
+--~ perf_misc()
+perf_xtea()
 
 --[[
 
-(tests on laptop - Linux 3.10, CPU i5 M430 @ 2.27 GHz)
-
-20151009 
+(tests run on laptop - Linux 3.10, CPU i5 M430 @ 2.27 GHz)
 
 Plain text size (in MBytes):	10
 Times:  elapsed (wall) and CPU (clock) in seconds
+
+20151010 
+- xtea ctr                 18     18.20   
+- xtea (encr block only)   15     15.45   
+
+20151009 
 - rabbit                   10      9.53
 - rc4 raw                  16     15.80
 - rabbit                    9      9.37
