@@ -1,8 +1,6 @@
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
-------------------------------------------------------------
-
+------------------------------------------------------------------------
 -- crude performance tests
-
 
 
 local bin = require"bin"
@@ -22,7 +20,7 @@ local spack, sunpack = string.pack, string.unpack
 local app, concat = table.insert, table.concat
 local strf = string.format
 
-------------------------------------------------------------
+------------------------------------------------------------------------
 local rc4 = require "rc4"
 local rabbit = require "rabbit"
 local cha = require "chacha20"
@@ -84,16 +82,22 @@ local function perf_encrypt()
 	start("chacha20")
 	et = cha.encrypt(k32, counter, nonce, plain)	
 	done()
+	--
+end --perf_encrypt
 
+local function perf_xor()
+	--
 	start("xor1, k16")
 	et = bin.xor1(k16, plain)	
 	done()
-
-	start("xor64, k16")
-	et = bin.xor64(k16, plain)	
+	--
+	-- xor64 removed
+	--
+	start("xor8, k16")
+	et = bin.xor8(k16, plain)	
 	done()
-
-end --perf_encrypt
+	--
+end --perf_xor
 
 local function perf_sha2_sha3()
 	local et, h  -- encrypted text, hash/hmac
@@ -164,16 +168,17 @@ local function perf_xtea()
 end	--perf_xtea
 
 --~ perf_encrypt()
+perf_xor()
 --~ perf_sha2_sha3()
 --~ perf_misc()
-perf_xtea()
+--~ perf_xtea()
 
 --[[
 
-(tests run on laptop - Linux 3.10, CPU i5 M430 @ 2.27 GHz)
+(tests run on a laptop - Linux 3.10, CPU i5 M430 @ 2.27 GHz)
 
 Plain text size (in MBytes):	10
-Times:  elapsed (wall) and CPU (clock) in seconds
+Times:  elapsed (os.time) and CPU (os.clock) in seconds
 
 20151010 
 - xtea ctr                 18     18.20   
@@ -184,8 +189,9 @@ Times:  elapsed (wall) and CPU (clock) in seconds
 - rc4 raw                  16     15.80
 - rabbit                    9      9.37
 - chacha20                 17     16.94
-- xor1, k16                12     11.63
-- xor64, k16                9      9.05
+- xor1, k16                11     11.25   
+- xor64, k16                9      9.05   (removed)
+- xor8, k16                 2      1.89   
 
 - sha2-256                 30     30.22
 - sha3-256                 54     54.53

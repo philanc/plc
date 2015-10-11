@@ -1,5 +1,5 @@
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
-------------------------------------------------------------
+------------------------------------------------------------------------
 
 -- test xtea.lua
 
@@ -15,8 +15,7 @@ local function pf(...) print(string.format(...)) end
 local spack, sunpack = string.pack, string.unpack
 local app, concat = table.insert, table.concat
 
-
-------------------------------------------------------------
+------------------------------------------------------------------------
 
 local function test_xtea()
 	--

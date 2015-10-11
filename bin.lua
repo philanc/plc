@@ -1,5 +1,5 @@
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
-------------------------------------------------------------
+------------------------------------------------------------------------
 --[[ 
 
 bin: misc binary data utilities: 
@@ -12,14 +12,20 @@ rotl32	- rotate left the 32 lower bits of an integer
 
 xor1	- xor a string with a key (repeated as needed)
 xor64	- same as xor1, but more efficient, memory-wise
-
+xor8	- same, but assume #key is a multiple of 8 (more efficient)
 
 
 ]]
+------------------------------------------------------------------------
+-- some local definitions
 
 local strf = string.format
 local byte, char = string.byte, string.char
-local concat = table.concat
+local spack, sunpack = string.pack, string.unpack
+
+local app, concat = table.insert, table.concat
+
+------------------------------------------------------------------------
 
 local function stohex(s, ln, sep)
 	-- stohex(s [, ln [, sep]])
@@ -84,57 +90,59 @@ local function xor1(key, plain)
 	-- return a string which is a xor of plain and key
 	-- plain and key may have arbitrary length.
 	-- the result has the same length as plain.
-	-- naive implementation, one byte at a time
-	local t = {}
+	-- naive implementation, one byte at a time (ok for small strings)
+	local ot = {}
 	local ki, kln = 1, #key
 	for i = 1, #plain do
+		ot[#ot + 1] = char(byte(plain, i) ~ byte(key, ki))
 		ki = ki + 1
 		if ki > kln then ki = 1 end
-		t[#t + 1] = char(byte(plain, i) ~ byte(key, ki))
 	end
-	return table.concat(t)
+	return concat(ot)
 end --xor1
 
-local function xor64(key, plain)
+local function xor8(key, plain)
 	-- return a string which is a xor of plain and key
-	-- functionnaly equivalent to xor1().
-	-- result is built one 64-byte block at a time (more efficient, 
-	-- especially memory-wise)
-	local concat = table.concat
-	local pln = #plain
-	local lbbn = pln % 64 	--number of bytes in last block
-				-- or 0 if last block is full
-	local bn = pln // 64 -- number of blocks
-	if lbbn > 0 then bn = bn + 1 end
-	local b = {} -- 64-byte block - will be reused
-	local t = {}
-	local bi = 1 -- index in block
-	local ki, kln = 1, #key -- key index and length
-	for i = 1, pln do
-		b[bi] = char(byte(plain, i) ~ byte(key, ki))
-		ki = ki + 1
-		if ki > kln then ki = 1 end
-		bi = bi + 1
-		if bi > 64 then
-			bi = 1
-			t[#t + 1] = concat(b)
+	-- plain may have arbitrary length.
+	-- ** key length (in bytes) must be a multiple of 8 **
+	-- the result has the same length as plain.	
+	-- (result is computed one uint64 at a time)
+	assert(#key % 8 == 0, 'key not a multiple of 8 bytes')
+	local ka = {} -- key as an array of uint64
+	for i = 1, #key, 8 do 
+		-- !!beware below: () around sunpack are needed: 
+		-- app aka table.insert takes optionally 3 args 
+		-- and sunpack returns 2 args...
+		app(ka, (sunpack("<I8", key, i))) 
+	end
+	local kaln = #ka
+	local rbn = #plain -- remaining bytes in plain 
+	local kai = 1  -- index in ka
+	local ot = {}  -- table to collect output
+	local ibu	-- an input block, as a uint64
+	local ob	-- an output block as a string
+	for i = 1, #plain, 8 do
+		if rbn < 8 then
+			local buffer = string.sub(plain, i) .. string.rep('\0', 8 - rbn)
+			ibu = sunpack("<I8", buffer)
+			ob = string.sub(spack("<I8", ibu ~ ka[kai]), 1, rbn)
+		else 
+			ibu = sunpack("<I8", plain, i)
+			ob = spack("<I8", ibu ~ ka[kai])
+			rbn = rbn - 8
+			kai = (kai < kaln) and (kai + 1) or 1
 		end
-	end--for
-	-- append bytes in last block if not full
-	if lbbn > 0 then
-		for i = lbbn+1, 64 do b[i] = nil end
-		assert(#b == lbbn)
-		t[#t + 1] = concat(b)
-	end--if
-	return concat(t)
-end --xor64
+		app(ot, ob)		
+	end
+	return concat(ot)	
+end --xor8
 
-
+------------------------------------------------------------------------
 return  { -- bin module
 	stohex = stohex,
 	hextos = hextos,
 	--
 	xor1 = xor1,
-	xor64 = xor64,
+	xor8 = xor8,
 	--
 	}

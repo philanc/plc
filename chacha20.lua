@@ -122,7 +122,7 @@ local chacha20_encrypt = function(key, counter, nonce, pt)
 	-- pt: plain text string, 
 
 	-- ensure counter can fit an uint32 --although it's unlikely
-	-- that we hit this wall with oure Lua encryption :-)
+	-- that we hit this wall with pure Lua encryption :-)
 	assert((counter + #pt // 64 + 1) < 0xffffffff, 
 		"block counter must fit an uint32")
 	assert(#key == 32, "#key must be 32")
@@ -143,6 +143,8 @@ end --chacha20_encrypt()
 ------------------------------------------------------------
 return {
 	encrypt = chacha20_encrypt, 
+	decrypt = chacha20_encrypt, 
+	--
 	key_size = 32,
 	nonce_size = 12,
 	}
