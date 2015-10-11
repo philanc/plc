@@ -52,9 +52,10 @@ local function keysetup(key)
 	-- precompute "sum + key[]"
 	-- returns a "state" with both tables (2 * 32 * uint32)
 	assert(#key == 16)
-	local kt = table.pack(sunpack('>I4I4I4I4', key))
-	local skt0 = {} -- the "sum + key[sum&3]" table (encrypt)
-	local skt1 = {} -- the "sum + key[sum>>11 & 3]" table (encrypt)
+	local kt = { 0,0,0,0 }
+	kt[1], kt[2], kt[3], kt[4] = sunpack('>I4I4I4I4', key)
+	local skt0 = {} -- the "sum + key[sum&3]" table 
+	local skt1 = {} -- the "sum + key[sum>>11 & 3]" table 
 	local sum, delta = 0, 0x9E3779B9
 	for i = 1, ROUNDS do
 		skt0[i] = sum + kt[(sum & 3) + 1]
@@ -105,11 +106,11 @@ end
 -- [hmm, not sure I will keep these two...]
 
 local function encrypt_s8(st, b)
-	return spack(">I8", encrypt_u64(st, sunpack(">I8", b)))
+	return spack(">I8", encrypt_u64(st, (sunpack(">I8", b))))
 end
 
 local function decrypt_s8(st, b)
-	return spack(">I8", decrypt_u64(st, sunpack(">I8", b)))
+	return spack(">I8", decrypt_u64(st, (sunpack(">I8", b))))
 end
 
 
