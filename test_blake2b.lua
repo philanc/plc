@@ -10,12 +10,16 @@ local bin = require 'bin'  -- for hex conversion
 local stohex, hextos = bin.stohex, bin.hextos
 
 ------------------------------------------------------------------------
---~ lz=require'lz'
---~ s = ('a'):rep(1000)
---~ print(stohex(lz.blake2b(s), 32))
 
 local function test_blake2b()
 	local a, b
+	--
+	a = blake2b.hash("") 
+	b = hextos[[
+	786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419
+	d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce ]]
+	assert(a == b)
+	--
 	a = blake2b.hash("abc") 
 	b = hextos[[
 	ba80a53f981c4d0d6a2797b69f12f6e94c212f14685ac4b74b12bb6fdbffa2d1
@@ -34,6 +38,7 @@ local function test_blake2b()
 	80cf3650a20e0591f748e10c3c534945ee83d5f2c9722f1a68d98b8c01af23fd ]]
 	assert(a == b)
 	--
+	-- test multiple updates
 	local ctx
 	ctx = blake2b.init()
 	blake2b.update(ctx, ('a'):rep(500))
@@ -46,8 +51,29 @@ local function test_blake2b()
 	a = blake2b.final(ctx)
 	assert(a == b)
 	--
-	
-end
+	ctx = blake2b.init()
+	for i = 1, 1000 do blake2b.update(ctx, 'a') end
+	a = blake2b.final(ctx)
+	assert(a == b)
+	--
+	-- test shorter digest
+	a = blake2b.hash("abc", 32) 
+	b = hextos[[ 
+	bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319 ]]
+	assert(a == b)
+	--
+	a = blake2b.hash("abc", 7) 
+	b = hextos[[ d5355e84cd8e92 ]]
+	assert(a == b)
+	--
+	-- test keyed digest
+	a = blake2b.hash("abc", 64, "key key key") 
+	b = hextos[[ 
+	cd63b5bfd9d74769c604fc5e1b4d0486078511abc07ab748e6ae0e2654058354
+	df6651c28d31396c71837d483fd1d1c5f9331fb23323495a6868361ad8196221 ]]
+	assert(a == b)
+	--
+end --test_blake2b()
 
 
 test_blake2b()

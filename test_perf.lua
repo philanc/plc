@@ -29,6 +29,8 @@ local sha3 = require "sha3"
 local poly = require "poly1305"
 local chk = require "checksum"
 local xtea = require "xtea"
+local blake2b = require "blake2b"
+
 
 local base64 = require "base64"
 local base58 = require "base58"
@@ -55,6 +57,8 @@ local plain = ('a'):rep(size)
 local k32 = ('k'):rep(32)
 local k16 = ('k'):rep(16)
 local iv8 = ('i'):rep(8)
+
+------------------------------------------------------------
 
 local function perf_encrypt()
 	local nonce = ('n'):rep(12)
@@ -85,6 +89,8 @@ local function perf_encrypt()
 	--
 end --perf_encrypt
 
+------------------------------------------------------------
+
 local function perf_xor()
 	--
 	start("xor1, k16")
@@ -98,6 +104,8 @@ local function perf_xor()
 	done()
 	--
 end --perf_xor
+
+------------------------------------------------------------
 
 local function perf_sha2_sha3()
 	local et, h  -- encrypted text, hash/hmac
@@ -117,6 +125,8 @@ local function perf_sha2_sha3()
 	h = sha3.hash512(plain)
 	done()
 end --perf_sha2_sha3
+
+------------------------------------------------------------
 
 local function perf_misc()
 	local et, h  -- encrypted text, hash/hmac
@@ -150,6 +160,8 @@ local function perf_misc()
 
 end --perf_misc
 
+------------------------------------------------------------
+
 local function perf_xtea()
 	local sub = string.sub
 	local et
@@ -167,11 +179,34 @@ local function perf_xtea()
 	--
 end	--perf_xtea
 
+------------------------------------------------------------
+
+local function perf_blake2b()
+	local dig
+	--
+	
+	print("Text size (in MBytes):", sizemb)
+	print("Times:  elapsed (wall) and CPU (clock) in seconds")
+	
+	start("blake2b-512")
+	dig = blake2b.hash(plain)
+	done()
+	--
+	start("blake2b-256")
+	dig = blake2b.hash(plain, 32) -- 32-byte digest
+	done()
+	--
+end	--perf_blake2b
+
+
+
+------------------------------------------------------------
 --~ perf_encrypt()
-perf_xor()
+--~ perf_xor()
 --~ perf_sha2_sha3()
 --~ perf_misc()
 --~ perf_xtea()
+perf_blake2b()
 
 --[[
 
@@ -187,12 +222,13 @@ Times:  elapsed (os.time) and CPU (os.clock) in seconds
 20151009 
 - rabbit                   10      9.53
 - rc4 raw                  16     15.80
-- rabbit                    9      9.37
 - chacha20                 17     16.94
 - xor1, k16                11     11.25   
 - xor64, k16                9      9.05   (removed)
 - xor8, k16                 2      1.89   
 
+- blake2b-512              13     13.28   
+- blake2b-256              13     13.29   
 - sha2-256                 30     30.22
 - sha3-256                 54     54.53
 - sha3-512                103    102.10

@@ -117,6 +117,8 @@ local function compress(ctx, last)
 	end
 end--compress()
 
+local update  -- (update is used in init() below, but defined after)
+
 local function init(outlen, key)
 	-- initialize the blake function
 	-- 1 <= outlen <= 64 gives the digest size in bytes. defaults to 64
@@ -146,7 +148,7 @@ local function init(outlen, key)
 	return ctx
 end --init()
 
-local function update(ctx, data)
+update = function(ctx, data)
 	-- buffer mgt cannot be done the C way..
 	local bln, rln, iln
 	local i = 1 -- index of 1st byte to process in data
