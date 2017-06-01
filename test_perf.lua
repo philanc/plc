@@ -30,6 +30,7 @@ local poly = require "poly1305"
 local chk = require "checksum"
 local xtea = require "xtea"
 local blake2b = require "blake2b"
+local norx = require "norx"
 
 
 local base64 = require "base64"
@@ -199,6 +200,45 @@ local function perf_blake2b()
 end	--perf_blake2b
 
 
+------------------------------------------------------------
+
+local function perf_norx()
+	local k = ('k'):rep(32)  -- key
+	local n = ('n'):rep(32)  -- nonce
+	local a = ('a'):rep(16)  -- header ad  (61 61 ...)
+	local z = ('z'):rep(8)   -- trailer ad  (7a 7a ...)
+	local m = plain
+	print("Text size (in MBytes):", sizemb, #m/1024/1024)
+	print("Times:  elapsed (wall) and CPU (clock) in seconds")
+	
+	start("norx encrypt")
+	local c = norx.aead_encrypt(k, n, plain, a, z)
+	done()
+	start("norx decrypt")
+	local p = norx.aead_decrypt(k, n, c, a, z)
+	assert(p == plain)
+	done()
+	--	
+	start("norx encrypt")
+	local c = norx.aead_encrypt(k, n, plain, a, z)
+	done()
+	start("norx decrypt")
+	local p = norx.aead_decrypt(k, n, c, a, z)
+	assert(p == plain)
+	done()
+	--
+	start("norx encrypt")
+	local c = norx.aead_encrypt(k, n, plain, a, z)
+	done()
+	start("norx decrypt")
+	local p = norx.aead_decrypt(k, n, c, a, z)
+	assert(p == plain)
+	done()
+	--	
+	--
+end	--perf_norx
+
+
 
 ------------------------------------------------------------
 --~ perf_encrypt()
@@ -206,11 +246,13 @@ end	--perf_blake2b
 --~ perf_sha2_sha3()
 --~ perf_misc()
 --~ perf_xtea()
-perf_blake2b()
+--~ perf_blake2b()
+perf_norx()
 
 --[[
 
-(tests run on a laptop - Linux 3.10, CPU i5 M430 @ 2.27 GHz)
+tests run on a laptop - Linux 3.10 x86, CPU i5 M430 @ 2.27 GHz
+(Lua 5.3.2 32 bits)
 
 Plain text size (in MBytes):	10
 Times:  elapsed (os.time) and CPU (os.clock) in seconds
@@ -227,8 +269,6 @@ Times:  elapsed (os.time) and CPU (os.clock) in seconds
 - xor64, k16                9      9.05   (removed)
 - xor8, k16                 2      1.89   
 
-- blake2b-512              13     13.28   
-- blake2b-256              13     13.29   
 - sha2-256                 30     30.22
 - sha3-256                 54     54.53
 - sha3-512                103    102.10
@@ -240,4 +280,50 @@ Times:  elapsed (os.time) and CPU (os.clock) in seconds
 - crc-32 (no table)        12     11.30   
 - poly1305 hmac             2      1.89   
 
+---
+
+tests run on a laptop - Linux 3.10 x86_64 CPU i5 M430 @ 2.27 GHz
+(Lua 5.3.3 64 bits)
+
+- rabbit                    5      4.83   
+- rc4 raw                   7      7.65   
+- rabbit                    5      4.71   
+- chacha20                  9      8.70   
+- norx encrypt              4      4.12   
+- norx decrypt              3      3.70   
+
+---
+
+tests on desktop HP (windows 7 64bit SP1, cpu intel core i5-3470 3.20ghz
+(Lua 5.3.3 32 bits, windows)
+
+- sha2-256                 22     21.76   
+- sha3-256                 34     34.59   
+- sha3-512                 65     64.82   
+- blake2b-512              13     13.28   
+- blake2b-256              13     13.29   
+
+- rabbit                    7      6.46   
+- rc4 raw                  10     10.20   
+- rabbit                    6      6.41   
+- chacha20                 12     11.23   
+- xtea ctr                 13     13.24   
+- xtea (encr block only)   11     11.26   
+
+--norx w ROTR64() and H() inlined:
+- norx encrypt              5      4.80   
+- norx decrypt              5      4.46   
+
+	-- norx w ROTR64 and H as functions:
+	- norx encrypt              8      7.92   
+	- norx decrypt              7      7.36   
+
+- xor1, k16                 8      8.30   
+- xor8, k16                 1      1.39   
+- base64 encode             9      9.28   (res: 13.3MB)
+- base64 decode             8      7.55   (res: 7.5MB)
+- adler-32                  1      1.75   
+- crc-32                    3      2.37   
+- crc-32 (no table)         8      8.21   
+- poly1305 hmac             1      1.56   
 ]]
