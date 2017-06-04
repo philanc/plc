@@ -18,7 +18,7 @@ end
 
 local spack, sunpack = string.pack, string.unpack
 local app, concat = table.insert, table.concat
-local strf = string.format
+local char, byte, strf = string.char, string.byte, string.format
 
 ------------------------------------------------------------------------
 local rc4 = require "rc4"
@@ -31,6 +31,7 @@ local chk = require "checksum"
 local xtea = require "xtea"
 local blake2b = require "blake2b"
 local norx = require "norx"
+local norx32 = require "norx32"
 
 
 local base64 = require "base64"
@@ -188,14 +189,17 @@ local function perf_blake2b()
 	
 	print("Text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
-	
-	start("blake2b-512")
-	dig = blake2b.hash(plain)
-	done()
+	for j = 1, 3 do
+		start("blake2b-512")
+		dig = blake2b.hash(plain)
+		done()
+	end
 	--
-	start("blake2b-256")
-	dig = blake2b.hash(plain, 32) -- 32-byte digest
-	done()
+	for j = 1, 3 do
+		start("blake2b-256")
+		dig = blake2b.hash(plain, 32) -- 32-byte digest
+		done()
+	end
 	--
 end	--perf_blake2b
 
@@ -208,35 +212,60 @@ local function perf_norx()
 	local a = ('a'):rep(16)  -- header ad  (61 61 ...)
 	local z = ('z'):rep(8)   -- trailer ad  (7a 7a ...)
 	local m = plain
-	print("Text size (in MBytes):", sizemb, #m/1024/1024)
+	print("Text size (in MBytes):", sizemb)
+	print("Times:  elapsed (wall) and CPU (clock) in seconds")
+	--
+	for i = 1, 3 do 
+		start("norx encrypt")
+		local c = norx.aead_encrypt(k, n, plain, a, z)
+		done()
+		start("norx decrypt")
+		local p = norx.aead_decrypt(k, n, c, a, z)
+		assert(p == plain)
+		done()
+	end
+	--	
+	for j = 1, 1 do
+		local pt = {}
+		local cnt = 256 * 10  -- cnt * 4k = 10mb
+		for i = 1, cnt do pt[i] = (char(i%256)):rep(4096) end
+		local ct = {}
+		start("norx encrypt 10mb (4k messages) ")
+		for i = 1, cnt do
+			ct[i] = norx.aead_encrypt(k, n, pt[i])
+		end
+		done()
+		start("norx decrypt 10mb (4k messages) ")
+		for i = 1, cnt do
+			local p = norx.aead_decrypt(k, n, ct[i])
+		end
+		done()
+	end
+	--	
+end	--perf_norx
+
+------------------------------------------------------------
+
+local function perf_norx32()
+	local k = ('k'):rep(16)  -- key
+	local n = ('n'):rep(16)  -- nonce
+	local a = ('a'):rep(16)  -- header ad  (61 61 ...)
+	local z = ('z'):rep(8)   -- trailer ad  (7a 7a ...)
+	local m = plain
+	print("Text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
 	
-	start("norx encrypt")
-	local c = norx.aead_encrypt(k, n, plain, a, z)
-	done()
-	start("norx decrypt")
-	local p = norx.aead_decrypt(k, n, c, a, z)
-	assert(p == plain)
-	done()
+	for j = 1, 3 do
+		start("norx32 encrypt")
+		local c = norx32.aead_encrypt(k, n, plain, a, z)
+		done()
+		start("norx32 decrypt")
+		local p = norx32.aead_decrypt(k, n, c, a, z)
+		assert(p == plain)
+		done()
+	end
 	--	
-	start("norx encrypt")
-	local c = norx.aead_encrypt(k, n, plain, a, z)
-	done()
-	start("norx decrypt")
-	local p = norx.aead_decrypt(k, n, c, a, z)
-	assert(p == plain)
-	done()
-	--
-	start("norx encrypt")
-	local c = norx.aead_encrypt(k, n, plain, a, z)
-	done()
-	start("norx decrypt")
-	local p = norx.aead_decrypt(k, n, c, a, z)
-	assert(p == plain)
-	done()
-	--	
-	--
-end	--perf_norx
+end	--perf_norx32
 
 
 
@@ -246,8 +275,9 @@ end	--perf_norx
 --~ perf_sha2_sha3()
 --~ perf_misc()
 --~ perf_xtea()
---~ perf_blake2b()
-perf_norx()
+perf_blake2b()
+--~ perf_norx()
+--~ perf_norx32()
 
 --[[
 
@@ -257,11 +287,9 @@ tests run on a laptop - Linux 3.10 x86, CPU i5 M430 @ 2.27 GHz
 Plain text size (in MBytes):	10
 Times:  elapsed (os.time) and CPU (os.clock) in seconds
 
-20151010 
+
 - xtea ctr                 18     18.20   
 - xtea (encr block only)   15     15.45   
-
-20151009 
 - rabbit                   10      9.53
 - rc4 raw                  16     15.80
 - chacha20                 17     16.94
@@ -285,12 +313,18 @@ Times:  elapsed (os.time) and CPU (os.clock) in seconds
 tests run on a laptop - Linux 3.10 x86_64 CPU i5 M430 @ 2.27 GHz
 (Lua 5.3.3 64 bits)
 
-- rabbit                    5      4.83   
+- blake2b-512               9      9.19   
+- blake2b-256               9      9.21   
+
 - rc4 raw                   7      7.65   
 - rabbit                    5      4.71   
 - chacha20                  9      8.70   
 - norx encrypt              4      4.12   
 - norx decrypt              3      3.70   
+- norx encrypt 10mb (4k messages)       4      3.98   
+- norx decrypt 10mb (4k messages)       4      4.13   
+- norx32 encrypt            8      8.56   
+- norx32 decrypt            8      7.84   
 
 ---
 
@@ -303,16 +337,18 @@ tests on desktop HP (windows 7 64bit SP1, cpu intel core i5-3470 3.20ghz
 - blake2b-512              13     13.28   
 - blake2b-256              13     13.29   
 
-- rabbit                    7      6.46   
 - rc4 raw                  10     10.20   
 - rabbit                    6      6.41   
 - chacha20                 12     11.23   
 - xtea ctr                 13     13.24   
 - xtea (encr block only)   11     11.26   
 
---norx w ROTR64() and H() inlined:
 - norx encrypt              5      4.80   
 - norx decrypt              5      4.46   
+- norx encrypt 10mb (4k messages)       5      5.10   
+- norx decrypt 10mb (4k messages)       5      4.85   
+- norx32 encrypt           11     10.76   
+- norx32 decrypt           10     10.03   
 
 	-- norx w ROTR64 and H as functions:
 	- norx encrypt              8      7.92   

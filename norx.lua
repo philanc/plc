@@ -14,7 +14,9 @@ NORX is a submission to CAESAR (Competition for Authenticated
 Encryption: Security, Applicability, and Robustness) http://competitions.cr.yp.to/caesar.html
 
 This Lua code implements the default NORX 64-4-1 variant 
-(state is 16 64-bit words, four rounds, no parallel execution)
+- state is 16 64-bit words, four rounds, no parallel execution
+- key and nonce are 256 bits
+
 
 ]]
 
@@ -360,6 +362,8 @@ local function aead_decrypt(key, nonce, crypted, header, trailer)
 	-- return the decrypted plain text, or (nil, error message) if 
 	-- the authenticated decryption fails
 	--
+	local header = header or ""
+	local trailer = trailer or ""
 	assert(#crypted >= 32) -- at least long enough for the auth tag
 	local out_table = {}
 	local state = init(key, nonce)
@@ -391,14 +395,14 @@ function selftest()
 	t = {}; for i = 1, 128 do t[i] = char(i-1) end; 
 	local plain = concat(t)
 	local header, trailer = plain, plain
-	local crypted = aead_encrypt(header, plain, trailer, nonce, key)
+	local crypted = aead_encrypt(key, nonce, plain, header, trailer)
 	-- print'---encrypted'; print(stohex(crypted, 16))
 	local authtag = crypted:sub(#crypted-32+1)
 	assert(authtag == hextos [[
 		D1 F2 FA 33 05 A3 23 76 E2 3A 61 D1 C9 89 30 3F 
 		BF BD 93 5A A5 5B 17 E4 E7 25 47 33 C4 73 40 8E 
 		]])
-	local p = assert(aead_decrypt(header, crypted, trailer, nonce, key))
+	local p = assert(aead_decrypt(key, nonce, plain, header, trailer))
 	--print'---plain'; print(stohex(p, 16))
 	assert(#crypted == #plain + 32)
 	assert(p == plain)

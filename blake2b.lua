@@ -12,9 +12,6 @@ BLAKE2 is based on the SHA-3 proposal BLAKE, designed by Jean-Philippe Aumasson,
 This Lua 5.3 implementation is derived from the C reference code in RFC 7693.
 
 
-NOTE:  this is WORK IN PROGRESS. Keyed hash and digest length less 
-than 64 have not been tested yet.
-
 ]]
 
 ------------------------------------------------------------------------
