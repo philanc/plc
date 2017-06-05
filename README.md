@@ -90,6 +90,41 @@ Implementations that may come some day:
 
 * better documentation in each file :-)
 
+### Performance
+
+These crude figures give an idea of the relative performance of the algorithms. 
+They correspond to the encryption or the hash of a 10 MB string (10 * 1024 * 1024 bytes). 
+
+They have been collected on a laptop with Linux x86_64,  CPU i5 M430 @ 2.27 GHz.
+Lua version is 5.3.3 (ELF 64 bits).
+
+```
+Plain text size: 10 MBytes. Elapsed time in seconds
+
+Encryption
+
+	- norx                      4
+	- norx32                    8   
+
+	- rabbit                    5
+	- chacha20                  9
+	- rc4                       8
+	- xtea ctr                 11  
+	- xor8                      1
+
+Hash
+	- blake2b-512               9
+	
+	- sha2-256                 17
+	- sha3-256                 23
+	- sha3-512                 43
+	
+	- poly1305 hmac             1
+
+	- adler-32                  1 
+	- crc-32                    2 
+
+```
 
 ### Test vectors, tests, and disclaimer
 

@@ -273,9 +273,9 @@ end	--perf_norx32
 --~ perf_encrypt()
 --~ perf_xor()
 --~ perf_sha2_sha3()
---~ perf_misc()
+perf_misc()
 --~ perf_xtea()
-perf_blake2b()
+--~ perf_blake2b()
 --~ perf_norx()
 --~ perf_norx32()
 
