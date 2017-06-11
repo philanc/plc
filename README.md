@@ -52,9 +52,9 @@ Encryption
 
 * NORX32, a variant of NORX intended for smaller architectures (32-bit and less). Key and nonce are 128 bits. (Note that this NORX32 Lua implementation is half as fast as the default 64-bit NORX. It is included here only for compatibility with other implementations - In Lua, use the default NORX implementation!)
 
-* Rabbit, a fast stream cipher, selected in the eSTREAM portfolio along with Salsa20, and defined in RFC 4503 (128-bit key, 64-bit IV - see more information and links in rabbit.lua)
+* Rabbit, a fast stream cipher, selected in the eSTREAM portfolio along with Salsa20, and defined in [RFC 4503](https://tools.ietf.org/html/rfc4503) (128-bit key, 64-bit IV - see more information and links in rabbit.lua)
 
-* Chacha20, Poly1305 and authenticated stream encryption, as defined in RFC 7539
+* Chacha20, Poly1305 and authenticated stream encryption, as defined in [RFC 7539](https://tools.ietf.org/html/rfc7539)
 
 * RC4 - for lightweight, low strength encryption. Can also be used as a simple pseudo-random number generator.
 
