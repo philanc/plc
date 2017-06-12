@@ -3,12 +3,16 @@
 -- License: MIT - see LICENSE file
 ------------------------------------------------------------
 
+-- 170612 SHA-3 padding fixed.
+-- (reported by Michael Rosenberg https://github.com/doomrobo)
+
+-- 150827 original code modified and optimized 
+-- (more than 2x performance improvement for sha3-512) --phil
+
 -- Directly devived from a Keccak implementation by Joseph Wallace
 -- published on the Lua mailing list in 2014
 -- http://lua-users.org/lists/lua-l/2014-03/msg00905.html
 
--- 150827 original code modified and optimized 
--- (more than 2x performance improvement for sha3-512) --phil
 
 ------------------------------------------------------------
 -- sha3 / keccak 
@@ -153,9 +157,15 @@ local function absorb(st, buffer)
 	local blockWords = blockBytes / 8
 	
 	-- append 0x01 byte and pad with zeros to block size (rate/8 bytes)
---~ 	buffer = buffer .. char(0x01)
 	local totalBytes = #buffer + 1
-	buffer = buffer .. ( '\x01' .. char(0):rep(blockBytes - (totalBytes % blockBytes)))
+	-- for keccak (2012 submission), the padding is byte 0x01 followed by zeros
+	-- for SHA3 (NIST, 2015), the padding is byte 0x06 followed by zeros
+
+	-- Keccak:
+	-- buffer = buffer .. ( '\x01' .. char(0):rep(blockBytes - (totalBytes % blockBytes)))
+	
+	-- SHA3:
+	buffer = buffer .. ( '\x06' .. char(0):rep(blockBytes - (totalBytes % blockBytes)))
 	totalBytes = #buffer
 	
 	--convert data to an array of u64
