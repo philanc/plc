@@ -32,6 +32,7 @@ local xtea = require "xtea"
 local blake2b = require "blake2b"
 local norx = require "norx"
 local norx32 = require "norx32"
+local md5 = require "md5"
 
 
 local base64 = require "base64"
@@ -267,17 +268,33 @@ local function perf_norx32()
 	--	
 end	--perf_norx32
 
+------------------------------------------------------------
+
+local function perf_md5()
+	local m = plain
+	print("Text size (in MBytes):", sizemb)
+	print("Times:  elapsed (wall) and CPU (clock) in seconds")
+	
+	for j = 1, 3 do
+		start("md5")
+		local dig = md5.hash(m)
+		done()
+	end
+	--	
+end	--perf_md5
+
 
 
 ------------------------------------------------------------
 --~ perf_encrypt()
 --~ perf_xor()
 --~ perf_sha2_sha3()
-perf_misc()
+--~ perf_misc()
 --~ perf_xtea()
 --~ perf_blake2b()
 --~ perf_norx()
 --~ perf_norx32()
+perf_md5()
 
 --[[
 
@@ -315,6 +332,7 @@ tests run on a laptop - Linux 3.10 x86_64 CPU i5 M430 @ 2.27 GHz
 
 - blake2b-512               9      9.19   
 - blake2b-256               9      9.21   
+- md5                       4      3.70   
 
 - rc4 raw                   7      7.65   
 - rabbit                    5      4.71   

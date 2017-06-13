@@ -4,11 +4,15 @@ A small collection of crpytographic functions, and related utilities, implemente
 
 ### Recent changes
 
+June-2017
+
+* Added *MD5*.
+
 May-2017
 
 * Added *NORX*, a *very* fast authenticated encryption algorithm.
 
-* Added *Blake2b*, a strong cryptographic hash
+* Added *Blake2b*, a strong cryptographic hash.
 
 Oct-2015
 
@@ -70,6 +74,8 @@ Hash
 * SHA2 cryptographic hash family (only sha256 for the moment)
 
 * SHA3 cryptographic hash family (formerly known as Keccak - 256-bit and 512-bit versions)
+
+* MD5, as specified in [RFC 1321](https://tools.ietf.org/html/rfc1321)
 
 * Non-cryptographic checksums (CRC-32, Adler-32), ...
 

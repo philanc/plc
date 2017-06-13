@@ -40,9 +40,9 @@ local function stohex(s, ln, sep)
 	--
 	if #s == 0 then return "" end
 	if not ln then -- no newline, no separator: do it the fast way!
-		return s:gsub('.', 
+		return (s:gsub('.', 
 			function(c) return strf('%02x', byte(c)) end
-			)
+			))
 	end
 	sep = sep or "" -- optional separator between each byte
 	local t = {}
