@@ -102,7 +102,7 @@ These crude numbers give an idea of the relative performance of the algorithms.
 They correspond to the encryption or the hash of a 10 MB string (10 * 1024 * 1024 bytes). 
 
 They have been collected on a laptop with Linux x86_64,  CPU i5 M430 @ 2.27 GHz.
-Lua version is 5.3.3 (ELF 64 bits) - see file 'test_perf.lua'. 
+Lua version is 5.3.3 (ELF 64 bits) - see file 'test_perf.lua'; uncomment whatever test you want to run at the end. 
 
 ```
 Plain text size: 10 MBytes. Elapsed time in seconds
@@ -124,6 +124,7 @@ Hash
 	- sha2-256                 17
 	- sha3-256                 23
 	- sha3-512                 43
+	- md5                       4
 	
 	- poly1305 hmac             1
 
@@ -137,7 +138,7 @@ Hash
 
 ### Test vectors, tests, and disclaimer
 
-Some simplistic tests are provided in the 'test_xxx' files. 
+Some simplistic tests can be run (test_all.lua). Individual test files are provided in the 'test' directory. 
 
 The implementations should pass the tests, but beyond that, there is no guarantee that these implementations conform to anything  :-)  -- Use at your own risk!
 
