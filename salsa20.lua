@@ -56,7 +56,7 @@ local salsa20_block = function(key, counter, nonce)
 	-- copy state to working_state
 	for i = 1, 16 do wst[i] = st[i] end
 	-- run 20 rounds, ie. 10 iterations of 8 quarter rounds
-	for i = 1, 10 do           --RFC reference:
+	for _ = 1, 10 do           --RFC reference:
 		qround(wst, 1,5,9,13)    --1.  QUARTERROUND ( 0, 4, 8,12)
 		qround(wst, 6,10,14,2)   --2.  QUARTERROUND ( 5, 9,13, 1)
 		qround(wst, 11,15,3,7)   --3.  QUARTERROUND (10,14, 2, 6)
