@@ -6,7 +6,7 @@ A small collection of crpytographic functions, and related utilities, implemente
 
 August-2017
 
-* Added *Salsa20* and the NaCl box() / secret_box() API, contributed by Pierre Chapuis - https://github.com/catwell
+* Added *Salsa20* and the NaCl *box() / secret_box()* API, contributed by Pierre Chapuis - https://github.com/catwell
 
 June-2017
 
