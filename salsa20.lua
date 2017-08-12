@@ -41,8 +41,8 @@ local salsa20_working_state = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 
 local salsa20_block = function(key, counter, nonce)
 	-- key: u32[8]
-	-- counter: u32
-	-- nonce: u32[3]
+	-- counter: u32[2]
+	-- nonce: u32[2]
 	local st = salsa20_state 		-- state
 	local wst = salsa20_working_state 	-- working state
 	-- initialize state
@@ -52,7 +52,7 @@ local salsa20_block = function(key, counter, nonce)
 		st[i+1] = key[i]
 		st[i+11] = key[i+4]
 	end
-	st[7], st[8], st[9], st[10] = nonce[1], nonce[2], counter, 0
+	st[7], st[8], st[9], st[10] = nonce[1], nonce[2], counter[1], counter[2]
 	-- copy state to working_state
 	for i = 1, 16 do wst[i] = st[i] end
 	-- run 20 rounds, ie. 10 iterations of 8 quarter rounds
@@ -78,7 +78,7 @@ local pat16 = "<I4I4I4I4I4I4I4I4I4I4I4I4I4I4I4I4"
 local function salsa20_encrypt_block(key, counter, nonce, pt, ptidx)
 	-- encrypt a 64-byte block of plain text.
 	-- key: 32 bytes as an array of 8 uint32
-	-- counter: an uint32 (must be incremented for each block)
+	-- counter: 8 bytes as an array of 2 uint32
 	-- nonce: 8 bytes as an array of 2 uint32
 	-- pt: plain text string,
 	-- ptidx: index of beginning of block in plain text (origin=1)
@@ -108,24 +108,24 @@ end --salsa20_encrypt_block
 local salsa20_encrypt = function(key, counter, nonce, pt)
 	-- encrypt plain text 'pt', return encrypted text
 	-- key: 32 bytes as a string
-	-- counter: an uint32 (must be incremented for each block)
+	-- counter: an uint64 (must be incremented for each block)
 	-- nonce: 8 bytes as a string
 	-- pt: plain text string,
-
-	-- Ensure counter can fit an uint32 --although it's unlikely
-	-- that we hit this wall with pure Lua encryption :-)
-	assert((counter + #pt // 64 + 1) < 0xffffffff,
-		"block counter must fit an uint32")
 	assert(#key == 32, "#key must be 32")
 	assert(#nonce == 8, "#nonce must be 8")
 	local keya = table.pack(string.unpack("<I4I4I4I4I4I4I4I4", key))
 	local noncea = table.pack(string.unpack("<I4I4", nonce))
+	local countera = {counter & 0xffffffff, counter >> 32}
 	local t = {} -- used to collect all encrypted blocks
 	local ptidx = 1
 	while ptidx < #pt do
-		app(t, salsa20_encrypt_block(keya, counter, noncea, pt, ptidx))
+		app(t, salsa20_encrypt_block(keya, countera, noncea, pt, ptidx))
 		ptidx = ptidx + 64
-		counter = counter + 1
+		countera[1] = countera[1] + 1
+		if countera[1] > 0xffffffff then
+			countera[1] = 0
+			countera[2] = countera[2] + 1
+		end
 	end
 	local et = concat(t)
 	return et
