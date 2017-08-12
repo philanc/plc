@@ -72,8 +72,25 @@ local salsa20_block = function(key, counter, nonce)
 	return st
 end --salsa20_block()
 
--- pat16: used to unpack a 64-byte string as 16 uint32
+local function hsalsa20_block(key, counter, nonce)
+	local st = salsa20_block(key, counter, nonce)
+	return {
+		(st[1] - 0x61707865) & 0xffffffff,
+		(st[6] - 0x3320646e) & 0xffffffff,
+		(st[11] - 0x79622d32) & 0xffffffff,
+		(st[16] - 0x6b206574) & 0xffffffff,
+		(st[7] - nonce[1]) & 0xffffffff,
+		(st[8] - nonce[2]) & 0xffffffff,
+		(st[9] - counter[1]) & 0xffffffff,
+		(st[10] - counter[2]) & 0xffffffff,
+	}
+end
+
+-- pat16: used to unpack a 64-byte string as 16 uint32 and vice versa
 local pat16 = "<I4I4I4I4I4I4I4I4I4I4I4I4I4I4I4I4"
+
+-- pat8: used to unpack a 32-byte string as 8 uint32 and vice versa
+local pat8 = "<I4I4I4I4I4I4I4I4"
 
 local function salsa20_encrypt_block(key, counter, nonce, pt, ptidx)
 	-- encrypt a 64-byte block of plain text.
@@ -131,10 +148,21 @@ local salsa20_encrypt = function(key, counter, nonce, pt)
 	return et
 end --salsa20_encrypt()
 
+local hsalsa20 = function(key, counter, nonce)
+	assert(#key == 32, "#key must be 32")
+	assert(#nonce == 8, "#nonce must be 8")
+	local keya = table.pack(string.unpack("<I4I4I4I4I4I4I4I4", key))
+	local noncea = table.pack(string.unpack("<I4I4", nonce))
+	local countera = {counter & 0xffffffff, counter >> 32}
+	local stream = hsalsa20_block(keya, countera, noncea)
+	return string.pack(pat8, table.unpack(stream))
+end
+
 ------------------------------------------------------------
 return {
 	encrypt = salsa20_encrypt,
 	decrypt = salsa20_encrypt,
+	hsalsa20 = hsalsa20,
 	--
 	key_size = 32,
 	nonce_size = 8,

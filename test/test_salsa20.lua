@@ -75,8 +75,26 @@ local function test_salsa20_ecrypt_6_0()
 	_test_salsa20_ecrypt(key, nonce, bytes, expected)
 end
 
+local function test_hsalsa20()
+	-- libsodium core2 test
+	local key = bin.hextos [[
+		1B27556473E985D462CD51197A9A46C7
+		6009549EAC6474F206C4EE0844F68389
+	]]
+	local nonce = bin.hextos("69696EE955B62B73")
+	local counter = string.unpack("<I8", (bin.hextos("CD62BDA875FC73D6")))
+	local expected = bin.hextos [[
+		DC908DDA0B9344A953629B7338207788
+		80F3CEB421BB61B91CBD4C3E66256CE4
+	]]
+	local key2 = salsa20.hsalsa20(key, counter, nonce)
+	assert(key2 == expected)
+end
+
 test_salsa20_encrypt_decrypt()
 test_salsa20_ecrypt_1_0()
 test_salsa20_ecrypt_6_0()
+test_hsalsa20()
 
 print("test_salsa20: ok")
+
