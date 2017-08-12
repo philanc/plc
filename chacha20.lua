@@ -116,10 +116,10 @@ end --chacha20_encrypt_block
 	
 local chacha20_encrypt = function(key, counter, nonce, pt)
 	-- encrypt plain text 'pt', return encrypted text
-	-- key: 32 bytes as an array of 8 uint32
+	-- key: 32 bytes as a string
 	-- counter: an uint32 (must be incremented for each block)
-	-- nonce: 12 bytes as an array of 3 uint32
-	-- pt: plain text string, 
+	-- nonce: 8 bytes as a string
+	-- pt: plain text string,
 
 	-- ensure counter can fit an uint32 --although it's unlikely
 	-- that we hit this wall with pure Lua encryption :-)
