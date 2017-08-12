@@ -18,3 +18,5 @@ do
     local dt = assert(box.box_open(et, n, pk_a, sk_b))
     assert(dt == pt)
 end
+
+print("test_box: ok")

@@ -6,7 +6,7 @@ A small collection of crpytographic functions, and related utilities, implemente
 
 August-2017
 
-* Added *Salsa20*, contributed by Pierre Chapuis - https://github.com/catwell
+* Added *Salsa20* and the NaCl box() / secret_box() API, contributed by Pierre Chapuis - https://github.com/catwell
 
 June-2017
 
@@ -64,14 +64,14 @@ Encryption
 
 * Chacha20, Poly1305 and authenticated stream encryption, as defined in [RFC 7539](https://tools.ietf.org/html/rfc7539)
 
-* Salsa20, a fast encryption algorithm. It has been defined by Dan Bernstein, Tanja Lange et al.  http://nacl.cr.yp.to/
+* Salsa20, a fast encryption algorithm and the NaCl secretbox() API for authenticated encryption (with Salsa20 and Poly1305 - see box.lua)
+Salsa20, Poly1305 and the NaCl library have been designed by Dan Bernstein, Tanja Lange et al.  http://nacl.cr.yp.to/.
 
 * RC4 - for lightweight, low strength encryption. Can also be used as a simple pseudo-random number generator.
 
 Public key
 
-* Elliptic curve cryptography: ec25519 (only low-level functions for the moment -
-just enough to implement ECDH key exchange)
+* Elliptic curve cryptography based on curve ec25519 by Dan Bernstein, Tanja Lange et al.,  http://nacl.cr.yp.to/.  File ec25519.lua includes the core scalar multiplication operation. File box.lua includes the NaCl box() API which combines ECDH key exchange and authenticated encryption.
 
 Hash
 
@@ -93,8 +93,6 @@ Some (un)related utilities:
 ### In the future...  
 
 Implementations that may come some day:
-
-* a pure Lua implementation of NaCl  ECDH key exchange and high level API for authenticated encryption (box(), secretbox()) based on ec25519, salsa20 and poly1305.
 
 * XChacha20 (ie. Chacha20 with a 24-byte nonce)
 
@@ -151,7 +149,7 @@ The implementations should pass the tests, but beyond that, there is no guarante
 
 All the files included here are distributed under the MIT License (see file LICENSE)
 
-The salsa20 implementation is contributed by Pierre Chapuis - https://github.com/catwell
+The salsa20 and box/secretbox implementations are contributed by Pierre Chapuis - https://github.com/catwell
 
 
 

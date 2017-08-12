@@ -14,6 +14,7 @@ require "test.test_blake2b"
 require "test.test_rc4"
 require "test.test_xtea"
 require "test.test_rabbit"
+require "test.test_salsa20"
 require "test.test_chacha20"
 require "test.test_poly1305"
 require "test.test_aead_chacha_poly"
@@ -22,4 +23,7 @@ require "test.test_norx32"
 
 -- pk / EC scalar mult for DH key exchange
 require "test.test_ec25519"
+
+-- NaCl box(), secret_box()
+require "test.test_box"
 

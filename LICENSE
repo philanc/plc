@@ -20,7 +20,8 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ------------------------------------------------------------------------
-salsa20.lua and test_salsa20 are contributed by Pierre Chapuis - https://github.com/catwell.
+Files salsa20.lua, test_salsa20, box.lua and test_box.lua are contributed 
+by Pierre Chapuis - https://github.com/catwell.
 They are distributed under the same terms but with the following Copyright:
    Copyright (c) 2017  Pierre Chapuis
 
