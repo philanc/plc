@@ -24,6 +24,7 @@ local char, byte, strf = string.char, string.byte, string.format
 local rc4 = require "rc4"
 local rabbit = require "rabbit"
 local cha = require "chacha20"
+local salsa = require "salsa20"
 local sha2 = require "sha2"
 local sha3 = require "sha3"
 local poly = require "poly1305"
@@ -65,6 +66,7 @@ local iv8 = ('i'):rep(8)
 
 local function perf_encrypt()
 	local nonce = ('n'):rep(12)
+	local nonce8 = ('n'):rep(8)
 	local counter = 1
 	local aad = "\x50\x51\x52\x53\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7"
 	local iv = "\x40\x41\x42\x43\x44\x45\x46\x47"
@@ -74,10 +76,6 @@ local function perf_encrypt()
 	print("Plain text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
 
-	start("rabbit")
-	et = rabbit.encrypt(k16, iv8, plain)
-	done()
-
 	start("rc4 raw")
 	et = rc4.rc4raw(k16, plain)
 	done()
@@ -85,12 +83,32 @@ local function perf_encrypt()
 	start("rabbit")
 	et = rabbit.encrypt(k16, iv8, plain)
 	done()
+		--
+end --perf_encrypt
+
+------------------------------------------------------------
+
+local function perf_encrypt20()
+	local nonce = ('n'):rep(12)
+	local nonce8 = ('n'):rep(8)
+	local counter = 1
+	local aad = "\x50\x51\x52\x53\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7"
+	local iv = "\x40\x41\x42\x43\x44\x45\x46\x47"
+	local const = "\x07\x00\x00\x00"
+	local et, h  -- encrypted text, hash/hmac
 	
+	print("Plain text size (in MBytes):", sizemb)
+	print("Times:  elapsed (wall) and CPU (clock) in seconds")
+
 	start("chacha20")
 	et = cha.encrypt(k32, counter, nonce, plain)	
 	done()
+
+	start("salsa20")
+	et = salsa.encrypt(k32, counter, nonce8, plain)	
+	done()
 	--
-end --perf_encrypt
+end --perf_encrypt20
 
 ------------------------------------------------------------
 
@@ -287,6 +305,7 @@ end	--perf_md5
 
 ------------------------------------------------------------
 --~ perf_encrypt()
+perf_encrypt20()
 --~ perf_xor()
 --~ perf_sha2_sha3()
 --~ perf_misc()
@@ -294,7 +313,7 @@ end	--perf_md5
 --~ perf_blake2b()
 --~ perf_norx()
 --~ perf_norx32()
-perf_md5()
+--~ perf_md5()
 
 --[[
 
@@ -336,7 +355,8 @@ tests run on a laptop - Linux 3.10 x86_64 CPU i5 M430 @ 2.27 GHz
 
 - rc4 raw                   7      7.65   
 - rabbit                    5      4.71   
-- chacha20                  9      8.70   
+- chacha20                  7      7.77   * linux 4.4 x86_64
+- salsa20                   7      7.80   * id.
 - norx encrypt              4      4.12   
 - norx decrypt              3      3.70   
 - norx encrypt 10mb (4k messages)       4      3.98   

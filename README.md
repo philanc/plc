@@ -4,6 +4,10 @@ A small collection of crpytographic functions, and related utilities, implemente
 
 ### Recent changes
 
+August-2017
+
+* Added *Salsa20*, contributed by Pierre Chapuis - https://github.com/catwell
+
 June-2017
 
 * Added *MD5*.
@@ -60,6 +64,8 @@ Encryption
 
 * Chacha20, Poly1305 and authenticated stream encryption, as defined in [RFC 7539](https://tools.ietf.org/html/rfc7539)
 
+* Salsa20, a fast encryption algorithm. It has been defined by Dan Bernstein, Tanja Lange et al.  http://nacl.cr.yp.to/
+
 * RC4 - for lightweight, low strength encryption. Can also be used as a simple pseudo-random number generator.
 
 Public key
@@ -88,7 +94,7 @@ Some (un)related utilities:
 
 Implementations that may come some day:
 
-* Salsa20 stream encryption (should be close to the Chacha20 implementation), and HSalsa20, allowing a pure Lua implementation of NaCl  ECDH key exchange and high level API (box(), secretbox())
+* a pure Lua implementation of NaCl  ECDH key exchange and high level API for authenticated encryption (box(), secretbox()) based on ec25519, salsa20 and poly1305.
 
 * XChacha20 (ie. Chacha20 with a 24-byte nonce)
 
@@ -113,7 +119,8 @@ Encryption
 	- norx32                    8   
 
 	- rabbit                    5
-	- chacha20                  9
+	- chacha20                  8
+	- salsa20                   8
 	- rc4                       8
 	- xtea ctr                 11  
 	- xor8                      1
@@ -133,9 +140,6 @@ Hash
 
 ```
 
-
-
-
 ### Test vectors, tests, and disclaimer
 
 Some simplistic tests can be run (test_all.lua). Individual test files are provided in the 'test' directory. 
@@ -143,10 +147,13 @@ Some simplistic tests can be run (test_all.lua). Individual test files are provi
 The implementations should pass the tests, but beyond that, there is no guarantee that these implementations conform to anything  :-)  -- Use at your own risk!
 
 
-### License
+### License and credits
 
-Except for some third-party implementations distributed under their specific terms, all the files included here are distributed under the MIT License (see file LICENSE)
+All the files included here are distributed under the MIT License (see file LICENSE)
 
-Copyright (c) 2017  Phil Leblanc 
+The salsa20 implementation is contributed by Pierre Chapuis - https://github.com/catwell
+
+
+
 
 
