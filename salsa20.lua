@@ -127,7 +127,7 @@ local salsa20_encrypt = function(key, counter, nonce, pt)
 	-- key: 32 bytes as a string
 	-- counter: an uint64 (must be incremented for each block)
 	-- nonce: 8 bytes as a string
-	-- pt: plain text string,
+	-- pt: plain text string
 	assert(#key == 32, "#key must be 32")
 	assert(#nonce == 8, "#nonce must be 8")
 	local keya = table.pack(string.unpack("<I4I4I4I4I4I4I4I4", key))
@@ -144,9 +144,30 @@ local salsa20_encrypt = function(key, counter, nonce, pt)
 			countera[2] = countera[2] + 1
 		end
 	end
-	local et = concat(t)
-	return et
+	return (concat(t))
 end --salsa20_encrypt()
+
+local function salsa20_stream(key, counter, nonce, length)
+	assert(#key == 32, "#key must be 32")
+	assert(#nonce == 8, "#nonce must be 8")
+	local keya = table.pack(string.unpack("<I4I4I4I4I4I4I4I4", key))
+	local noncea = table.pack(string.unpack("<I4I4", nonce))
+	local countera = {counter & 0xffffffff, counter >> 32}
+	local t = {} -- used to collect all encrypted blocks
+	while length > 0 do
+		local keystream = salsa20_block(keya, countera, noncea)
+		local block = string.pack(pat16, table.unpack(keystream))
+		if length <= 64 then block = block:sub(1, length) end
+		app(t, block)
+		length = length - 64
+		countera[1] = countera[1] + 1
+		if countera[1] > 0xffffffff then
+			countera[1] = 0
+			countera[2] = countera[2] + 1
+		end
+	end
+	return (concat(t))
+end
 
 local hsalsa20 = function(key, counter, nonce)
 	assert(#key == 32, "#key must be 32")
@@ -162,6 +183,7 @@ end
 return {
 	encrypt = salsa20_encrypt,
 	decrypt = salsa20_encrypt,
+	stream = salsa20_stream,
 	hsalsa20 = hsalsa20,
 	--
 	key_size = 32,
