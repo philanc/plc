@@ -7,7 +7,7 @@ local blake2b = require "plc.blake2b"
 
 local bin = require "plc.bin"  -- for hex conversion
 
-local stohex, hextos = bin.stohex, bin.hextos
+local hextos = bin.hextos
 
 ------------------------------------------------------------------------
 
@@ -47,12 +47,12 @@ local function test_blake2b()
 	assert(a == b)
 	--
 	ctx = blake2b.init()
-	for i = 1, 100 do blake2b.update(ctx, ('a'):rep(10)) end
+	for _ = 1, 100 do blake2b.update(ctx, ('a'):rep(10)) end
 	a = blake2b.final(ctx)
 	assert(a == b)
 	--
 	ctx = blake2b.init()
-	for i = 1, 1000 do blake2b.update(ctx, 'a') end
+	for _ = 1, 1000 do blake2b.update(ctx, 'a') end
 	a = blake2b.final(ctx)
 	assert(a == b)
 	--

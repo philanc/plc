@@ -6,14 +6,6 @@
 
 local chacha20 = require "plc.chacha20"
 
-local bin = require "plc.bin"
-local stx = bin.stohex
-local function px(s) print(stx(s, 16, " ")) end
-
-local spack, sunpack = string.pack, string.unpack
-local app, concat = table.insert, table.concat
-
-
 ------------------------------------------------------------
 
 local function test_chacha20_encrypt()

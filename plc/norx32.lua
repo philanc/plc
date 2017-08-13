@@ -22,7 +22,6 @@ This Lua code implements the NORX 32-4-1 variant, optimized for 32-bit architect
 ------------------------------------------------------------------------
 -- local definitions
 
-local char, byte = string.char, string.byte
 local spack, sunpack = string.pack, string.unpack
 local insert, concat = table.insert, table.concat
 
@@ -54,8 +53,8 @@ local HEADER_TAG  = 0x01
 local PAYLOAD_TAG = 0x02
 local TRAILER_TAG = 0x04
 local FINAL_TAG   = 0x08
-local BRANCH_TAG  = 0x10
-local MERGE_TAG   = 0x20
+-- local BRANCH_TAG  = 0x10
+-- local MERGE_TAG   = 0x20
 
 -- local function ROTR32(x, n) -- INLINED in G()
 --     return (x >> n) | (x << (64-n))
@@ -103,7 +102,7 @@ end
 
 local function permute(s)
 	-- the core permutation  (four rounds)
-	for i = 1, 4 do F(s) end
+	for _ = 1, 4 do F(s) end
 end
 
 local function pad(ins)
@@ -182,7 +181,7 @@ local function decrypt_lastblock(s, out_table, last)
 		local s4 = spack("<I4", s[i])
 		insert(lastblock_s4_table, s4)
 	end
-	lastblock = concat(lastblock_s4_table) -- lastblock as a 48-byte string
+	local lastblock = concat(lastblock_s4_table) -- lastblock as a 48-byte string
 	-- explode lastblock as an array of bytes
 	local lastblock_byte_table = {}
 	for i = 1, 48 do
@@ -334,8 +333,8 @@ local function aead_encrypt(key, nonce, plain, header, trailer)
 	-- nonce, key: must be 16-byte strings
 	-- return the encrypted text with the 32-byte authentication tag
 	-- appended
-	local header = header or ""
-	local trailer = trailer or ""
+	header = header or ""
+	trailer = trailer or ""
 	local out_table = {}
 	assert(#key == 16, "key must be 16-byte long")
 	assert(#nonce == 16, "nonce must be 16-byte long")
@@ -363,8 +362,8 @@ local function aead_decrypt(key, nonce, crypted, header, trailer)
 	-- return the decrypted plain text, or (nil, error message) if
 	-- the authenticated decryption fails
 	--
-	local header = header or ""
-	local trailer = trailer or ""
+	header = header or ""
+	trailer = trailer or ""
 	assert(#key == 16, "key must be 16-byte long")
 	assert(#nonce == 16, "nonce must be 16-byte long")
 	assert(#crypted >= 16) -- at least long enough for the auth tag

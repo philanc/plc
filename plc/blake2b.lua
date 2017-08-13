@@ -7,7 +7,8 @@ blake2b hash function -- See https://blake2.net/
 
 Specified in RFC 7693, https://tools.ietf.org/html/rfc7693
 
-BLAKE2 is based on the SHA-3 proposal BLAKE, designed by Jean-Philippe Aumasson, Luca Henzen, Willi Meier, and Raphael C.-W. Phan.
+BLAKE2 is based on the SHA-3 proposal BLAKE, designed by Jean-Philippe Aumasson,
+Luca Henzen, Willi Meier, and Raphael C.-W. Phan.
 
 This Lua 5.3 implementation is derived from the C reference code in RFC 7693.
 
@@ -18,24 +19,8 @@ This Lua 5.3 implementation is derived from the C reference code in RFC 7693.
 -- local definitions
 
 
-local spack, sunpack = string.pack, string.unpack
-local insert, concat = table.insert, table.concat
-local strf = string.format
-
-local bin = require "plc.bin"
-local stohex = bin.stohex
-
-local function px(s, ln) ln = ln or 32; print(bin.stohex(s, ln)) end
-local function prf(...) print(string.format(...)) end
-
-local function p64(m)
-	p = ""
-	for i=1,16 do
-		p = p .. strf("%016x ", m[i])
-		if i%3 == 0 then p = p .. '\n' end
-	end
-	print(p)
-end
+local sunpack = string.unpack
+local concat = table.concat
 
 ------------------------------------------------------------------------
 

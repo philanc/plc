@@ -7,16 +7,11 @@ local bin = require "plc.bin"
 
 local stx = bin.stohex
 local xts = bin.hextos
-local function px(s) print(stx(s, 16, " ")) end
-local function pf(...) print(string.format(...)) end
-
-local spack, sunpack = string.pack, string.unpack
-local app, concat = table.insert, table.concat
 
 ------------------------------------------------------------------------
 
 local function test_bin()
-	local p, e, exp
+	local e
 	--
 	-- test hex / string conversion
 	local s13 = "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d"
@@ -44,10 +39,10 @@ local function test_bin()
 	assert(not pcall(xts, "abc "))
 	--
 	-- test xor
-	pa5 = ('\xaa\x55'):rep(8)
-	p5a = ('\x55\xaa'):rep(8)
-	p00 = ('\x00\x00'):rep(8)
-	pff = ('\xff\xff'):rep(8)
+	local pa5 = ('\xaa\x55'):rep(8)
+	local p5a = ('\x55\xaa'):rep(8)
+	local p00 = ('\x00\x00'):rep(8)
+	local pff = ('\xff\xff'):rep(8)
 	assert(bin.xor1(pa5, p00) == pa5)
 	assert(bin.xor1(pa5, pff) == p5a)
 	assert(bin.xor1(pa5, pa5) == p00)

@@ -5,11 +5,11 @@
 
 local norx = require "plc.norx"
 
-local byte, char, strf = string.byte, string.char, string.format
-local insert, concat = table.insert, table.concat
+local char = string.char
+local concat = table.concat
 
 local bin = require "plc.bin"  -- for hex conversion
-local stohex, hextos = bin.stohex, bin.hextos
+local hextos = bin.hextos
 
 
 ------------------------------------------------------------------------

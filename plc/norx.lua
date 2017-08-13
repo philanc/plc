@@ -23,7 +23,6 @@ This Lua code implements the default NORX 64-4-1 variant
 ------------------------------------------------------------------------
 -- local definitions
 
-local char, byte = string.char, string.byte
 local spack, sunpack = string.pack, string.unpack
 local insert, concat = table.insert, table.concat
 
@@ -55,8 +54,8 @@ local HEADER_TAG  = 0x01
 local PAYLOAD_TAG = 0x02
 local TRAILER_TAG = 0x04
 local FINAL_TAG   = 0x08
-local BRANCH_TAG  = 0x10
-local MERGE_TAG   = 0x20
+-- local BRANCH_TAG  = 0x10
+-- local MERGE_TAG   = 0x20
 
 -- local function ROTR64(x, n) -- INLINED in G()
 --     return (x >> n) | (x << (64-n))
@@ -104,7 +103,7 @@ end
 
 local function permute(s)
 	-- the core permutation  (four rounds)
-	for i = 1, 4 do F(s) end
+	for _ = 1, 4 do F(s) end
 end
 
 local function pad(ins)
@@ -183,7 +182,7 @@ local function decrypt_lastblock(s, out_table, last)
 		local s8 = spack("<I8", s[i])
 		insert(lastblock_s8_table, s8)
 	end
-	lastblock = concat(lastblock_s8_table) -- lastblock as a 96-byte string
+	local lastblock = concat(lastblock_s8_table) -- lastblock as a 96-byte string
 	-- explode lastblock as an array of bytes
 	local lastblock_byte_table = {}
 	for i = 1, 96 do
@@ -335,8 +334,8 @@ local function aead_encrypt(key, nonce, plain, header, trailer)
 	-- nonce, key: must be 32-byte strings
 	-- return the encrypted text with the 32-byte authentication tag
 	-- appended
-	local header = header or ""
-	local trailer = trailer or ""
+	header = header or ""
+	trailer = trailer or ""
 	local out_table = {}
 	local state = init(key, nonce)
 --~ 	ps(state)
@@ -362,8 +361,8 @@ local function aead_decrypt(key, nonce, crypted, header, trailer)
 	-- return the decrypted plain text, or (nil, error message) if
 	-- the authenticated decryption fails
 	--
-	local header = header or ""
-	local trailer = trailer or ""
+	header = header or ""
+	trailer = trailer or ""
 	assert(#crypted >= 32) -- at least long enough for the auth tag
 	local out_table = {}
 	local state = init(key, nonce)

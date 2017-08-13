@@ -30,17 +30,17 @@ local function test_sha3()
 		fdfe32511b76f38a71a7ac95a4c98add2b41debab35e1b7dda8bb3b14c280533 ]])
 
 	-- check padding (all input sizes modulo 8)
-	st = {
+	local st = {
 		"", "a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
 		"abcdefgh", "abcdefghi", "abcdefghij"
 	}
-	ht = {}  -- hex digest values
-	for i, s in ipairs(st) do insert(ht, sha3.hash256(s)) end
-	for i, s in ipairs(st) do insert(ht, sha3.hash512(s)) end
+	local ht = {}  -- hex digest values
+	for _, s in ipairs(st) do insert(ht, sha3.hash256(s)) end
+	for _, s in ipairs(st) do insert(ht, sha3.hash512(s)) end
 	-- results
-	res = concat(ht)
+	local res = concat(ht)
 
-	expected = bin.hextos[[
+	local expected = bin.hextos[[
 a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a
 80084bf2fba02475726feb2cab2d8215eab14bc6bdd8bfb2c8151257032ecd8b
 5c828b33397f4762922e39a60c35699d2550466a52dd15ed44da37eb0bdc61e6

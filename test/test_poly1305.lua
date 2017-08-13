@@ -62,10 +62,14 @@ local test_poly_auth = function ()
 	assert (mac == wrapmac)
 
 	-- rfc 7539 test vector
-	rfcmsg = "Cryptographic Forum Research Group"
-	rfckey = bin.hextos(
+	local rfcmsg = "Cryptographic Forum Research Group"
+	local rfckey = bin.hextos(
 		"85d6be7857556d337f4452fe42d506a80103808afb0db2fd4abff6af4149f51b")
-	rfcmac = bin.hextos("a8061dc1305136c6c22b8baf0c0127a9")
+	local rfcmac = bin.hextos("a8061dc1305136c6c22b8baf0c0127a9")
 	mac = poly.auth(rfcmsg, rfckey)
 	assert (mac == rfcmac)
 end
+
+test_poly_auth()
+
+print("test_poly1305: ok")

@@ -3,7 +3,6 @@
 ------------------------------------------------------------
 -- rc4 encryption / decryption
 
-local spack, sunpack = string.pack, string.unpack
 local byte, char, concat = string.byte, string.char, table.concat
 
 --[[
@@ -37,10 +36,10 @@ local function keysched(key)
 	-- key must be a 16-byte string
 	assert(#key == 16)
 	local s = {}
-	local i,j,ii,jj
+	local j,ii,jj
 	for i = 0, 255 do s[i+1] = i end
 	j = 0
-	for i = 0, 255 do 
+	for i = 0, 255 do
 		ii = i+1
 		j = (j + s[ii] + byte(key, (i % 16) + 1)) & 0xff
 		jj = j+1
@@ -83,8 +82,8 @@ local function rc4(key, plain, drop)
 	local k
 	local t = {}
 	-- run and ignore 'drop' iterations
-	for n = 1, drop do
-		s, i, j, k = step(s, i, j)
+	for _ = 1, drop do
+		s, i, j = step(s, i, j)
 	end
 	-- now start to encrypt
 	for n = 1, #plain do

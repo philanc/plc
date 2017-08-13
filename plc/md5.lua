@@ -3,8 +3,6 @@
 ------------------------------------------------------------------------
 -- md5 hash - see RFC 1321 - https://www.ietf.org/rfc/rfc1321.txt
 
-local char	= string.char
-local concat	= table.concat
 local spack, sunpack = string.pack, string.unpack
 
 ------------------------------------------------------------------------

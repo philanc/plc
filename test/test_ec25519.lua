@@ -10,19 +10,16 @@ test ec25519 module
 local ec = require "plc.ec25519"
 
 ------------------------------------------------------------
--- utilities
-local function pt(t) print(table.concat(t, " ")) end
-local function pf(...) print(string.format(...)) end
 
 local function verify(x, y)
 	-- verify that x[i] == y[i] for all i
-	b = #x == #y
+	local b = #x == #y
 	for i = 1, #x do b = b and (x[i] == y[i]) end
 	return b
 end
 
 ------------------------------------------------------------
-function test_scalarmult_base()
+local function test_scalarmult_base()
 	local n1 = {
 	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 	1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
@@ -61,15 +58,6 @@ function test_scalarmult_base()
 --~ 	pt(q)
 	assert(verify(q, qexp3))
 end --test_scalarmult
-
-local function test_scalarmult_perf()
-	local c0 = os.clock()
-	for i = 1, 100 do		-- 99 sec elapsed ~ 0.33 sec / mult (on ac38)
-		test_scalarmult_base()
-	end
-	local c1 = os.clock()
-	print("ok.  300 multiplications (in sec):", c1-c0)
-end
 
 local function test_scalarmult()
 	local n1 = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}

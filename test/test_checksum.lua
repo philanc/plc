@@ -4,7 +4,6 @@
 -- checksum tests
 
 local checksum = require "plc.checksum"
-local bin = require "plc.bin"  -- for hex conversion
 
 
 local function test_checksum()

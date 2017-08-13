@@ -7,27 +7,13 @@
 local rabbit = require "plc.rabbit"
 
 local bin = require "plc.bin"
-local stx = bin.stohex
 local xts = bin.hextos
-local function px(s) print(stx(s, 16, " ")) end
-local function pf(...) print(string.format(...)) end
-
-local function pst(st)
-	for i = 1,8 do
-		pf("x[%d]:  %08X     c[%d]:  %08X",
-			i, st.x[i], i, st.c[i] )
-	end
-end
-
-local spack, sunpack = string.pack, string.unpack
-local app, concat = table.insert, table.concat
-
 
 ------------------------------------------------------------
 
 local function test_rabbit_encrypt()
 	-- quick test with some eSTREAM test vectors
-	local key, iv, txt, exp, ec
+	local key, iv, exp, ec
 	local key0 = ('\0'):rep(16)
 	local iv0 = ('\0'):rep(8)
 	local txt0 = ('\0'):rep(48)

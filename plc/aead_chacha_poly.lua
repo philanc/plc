@@ -16,8 +16,6 @@ and MAC primitives.
 
 ]]
 
-local spack, sunpack = string.pack, string.unpack
-
 local chacha20 = require "plc.chacha20"
 local poly1305 = require "plc.poly1305"
 
@@ -72,7 +70,6 @@ local function decrypt(aad, key, iv, constant, encr, tag)
 	local mt = {} -- mac_data table
 	local nonce = constant .. iv
 	local otk = poly_keygen(key, nonce)
-	local plain = chacha20.encrypt(key, 1, nonce, encr)
 	app(mt, aad)
 	app(mt, pad16(aad))
 	app(mt, encr)
