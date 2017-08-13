@@ -3,8 +3,8 @@
 
 -- test salsa20.lua
 
-local salsa20 = require "salsa20"
-local bin = require "bin"
+local salsa20 = require "plc.salsa20"
+local bin = require "plc.bin"
 
 local function test_salsa20_encrypt_decrypt()
 	-- Check we can decrypt what we encrypted.

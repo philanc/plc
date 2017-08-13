@@ -51,15 +51,6 @@ local function rrotate (x, n)
   return ((x >> n) | (x << (32 - n)))    -- (1)
 end
 
-
--- transform a string of bytes in a string of hexadecimal digits
-local function str2hexa (s)
-  local h = string.gsub(s, ".", function(c)
-              return string.format("%02x", string.byte(c))
-            end)
-  return h
-end
-
 -- 150827 added to replace packint/unpackint functions
 -- num28(l) turn 'l' in a big-endian sequence of 8 bytes
 -- num24(l) turn 'l' in a big-endian sequence of 4 bytes
@@ -118,13 +109,13 @@ local function digestblock (msg, i, H)
         H[1], H[2], H[3], H[4], H[5], H[6], H[7], H[8]
 
     -- Main loop:
-    for i = 1, 64 do
+    for j = 1, 64 do
       local s0 = rrotate(a, 2) ~ rrotate(a, 13) ~ rrotate(a, 22)   -- (1)
       local maj = (a & b) ~ (a & c) ~ (b & c)
       local t2 = s0 + maj                                          -- (1)
       local s1 = rrotate(e, 6) ~ rrotate(e, 11) ~ rrotate(e, 25)   -- (1)
       local ch = (e & f) ~ (~e & g)
-      local t1 = h + s1 + ch + k[i] + w[i]                         -- (1)
+      local t1 = h + s1 + ch + k[j] + w[j]                         -- (1)
 
       h = g
       g = f

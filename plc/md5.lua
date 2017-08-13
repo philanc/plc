@@ -3,8 +3,6 @@
 ------------------------------------------------------------------------
 -- md5 hash - see RFC 1321 - https://www.ietf.org/rfc/rfc1321.txt
 
-local char	= string.char
-local concat	= table.concat
 local spack, sunpack = string.pack, string.unpack
 
 ------------------------------------------------------------------------
@@ -39,18 +37,18 @@ end
 
 local function transform(state, input, i, t)
 	-- process the 64-byte input block in string 'input' at offset 'i'
-	-- t is a uint32[16] array. It is passed as a parameter 
+	-- t is a uint32[16] array. It is passed as a parameter
 	-- for performance reasons
-	-- 
-	local a, b, c, d = state[1], state[2], state[3], state[4] 
-	
+	--
+	local a, b, c, d = state[1], state[2], state[3], state[4]
+
 	-- load array
-	for j = 1, 16 do 
-		t[j] = sunpack("<I4", input, i) 
+	for j = 1, 16 do
+		t[j] = sunpack("<I4", input, i)
 		i = i + 4
 	end
 
-    -- Round 1 
+    -- Round 1
     a = FF (a, b, c, d, t[ 1], 7, 0xd76aa478)
     d = FF (d, a, b, c, t[ 2], 12, 0xe8c7b756)
     c = FF (c, d, a, b, t[ 3], 17, 0x242070db)
@@ -68,7 +66,7 @@ local function transform(state, input, i, t)
     c = FF (c, d, a, b, t[15], 17, 0xa679438e)
     b = FF (b, c, d, a, t[16], 22, 0x49b40821)
 
-    -- Round 2 
+    -- Round 2
     a = GG (a, b, c, d, t[ 2], 5, 0xf61e2562)
     d = GG (d, a, b, c, t[ 7], 9, 0xc040b340)
     c = GG (c, d, a, b, t[12], 14, 0x265e5a51)
@@ -86,7 +84,7 @@ local function transform(state, input, i, t)
     c = GG (c, d, a, b, t[ 8], 14, 0x676f02d9)
     b = GG (b, c, d, a, t[13], 20, 0x8d2a4c8a)
 
-    -- Round 3 
+    -- Round 3
     a = HH (a, b, c, d, t[ 6], 4, 0xfffa3942)
     d = HH (d, a, b, c, t[ 9], 11, 0x8771f681)
     c = HH (c, d, a, b, t[12], 16, 0x6d9d6122)
@@ -104,7 +102,7 @@ local function transform(state, input, i, t)
     c = HH (c, d, a, b, t[16], 16, 0x1fa27cf8)
     b = HH (b, c, d, a, t[ 3], 23, 0xc4ac5665)
 
-    -- Round 4 
+    -- Round 4
     a = II (a, b, c, d, t[ 1], 6, 0xf4292244)
     d = II (d, a, b, c, t[ 8], 10, 0x432aff97)
     c = II (c, d, a, b, t[15], 15, 0xab9423a7)
@@ -121,7 +119,7 @@ local function transform(state, input, i, t)
     d = II (d, a, b, c, t[12], 10, 0xbd3af235)
     c = II (c, d, a, b, t[ 3], 15, 0x2ad7d2bb)
     b = II (b, c, d, a, t[10], 21, 0xeb86d391)
-	
+
 	state[1] = (state[1] + a) & 0xffffffff
 	state[2] = (state[2] + b) & 0xffffffff
 	state[3] = (state[3] + c) & 0xffffffff
@@ -143,7 +141,7 @@ local function md5(input)
 		i = i + 64 -- update input index
 		r = r - 64 -- update number of unprocessed bytes
 	end
-	-- finalize.  must append to input a mandatory 0x80 byte, some 
+	-- finalize.  must append to input a mandatory 0x80 byte, some
 	--  padding, and the input bit-length ('inputbits')
 	local lastblock -- the rest of input .. some padding .. inputbits
 	local padlen -- padding length in bytes
@@ -161,7 +159,7 @@ local function md5(input)
 	return digest
 end --md5()
 
---~ bin = require'bin'
+--~ bin = require "plc.bin"
 --~ print(bin.stohex(md5'abc'))
 --~ print(bin.stohex(md5""))
 

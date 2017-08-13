@@ -3,8 +3,8 @@
 ------------------------------------------------------------
 -- sha2 tests
 
-local sha2 = require 'sha2'
-local bin = require 'bin'  -- for hex conversion
+local sha2 = require "plc.sha2"
+local bin = require "plc.bin"  -- for hex conversion
 
 
 local function test_sha2()

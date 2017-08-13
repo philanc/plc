@@ -3,34 +3,29 @@
 
 -- base64 encode / decode
 
-local spack, sunpack = string.pack, string.unpack
 local byte, char, concat = string.byte, string.char, table.concat
 
-local b64chars = 	-- Base64 alphabet (RFC 4648)
+local B64CHARS = 	-- Base64 alphabet (RFC 4648)
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
--- inverse base64 map, used by b64decode:  b64charmap maps characters in 
+-- inverse base64 map, used by b64decode:  b64charmap maps characters in
 -- base64 alphabet to their _offset_ in b64chars (0-based, not 1-based...)
 --  eg.	for 'A' b64charmap[65] == 0  and for '/', b64charmap[47] == 63
 --
-local b64charmap = {}; 
-for i = 1, 64 do b64charmap[byte(b64chars, i)] = i - 1  end
+local b64charmap = {};
+for i = 1, 64 do b64charmap[byte(B64CHARS, i)] = i - 1  end
 
--- filename-safe alphabet (RFC 4648):  
--- '+/' are respectively replaced with '-_'	
-
--- max line length in an encode string
--- (newlines are inserted every 72 chars)
-local MAXLINELN = 72  
+-- filename-safe alphabet (RFC 4648):
+-- '+/' are respectively replaced with '-_'
 
 local function encode(s, filename_safe)
 	-- encode binary string s. returns base64 encoded string
 	-- correct padding ('=') is appended to encoded string
-	-- if the encoded string is longer than 72, 
+	-- if the encoded string is longer than 72,
 	-- a newline is added every 72 chars.
 	-- if optional argument filename_safe is true, '+/' are replaced
 	-- with '-_' in encoded string and padding and newlines are removed
-	local b64chars = b64chars
+	local b64chars = B64CHARS
 	local rn = #s % 3
 	local st = {}
 	local c1, c2, c3
@@ -52,7 +47,7 @@ local function encode(s, filename_safe)
 	-- process remaining bytes and padding
 	if rn == 2 then
 		st[#st] = string.gsub(st[#st], ".$", "=")
-	elseif rn == 1 then 
+	elseif rn == 1 then
 		st[#st] = string.gsub(st[#st], "..$", "==")
 	end
 	local b = concat(st)
@@ -66,18 +61,16 @@ local function encode(s, filename_safe)
 	return b
 end --encode
 
-local function decode(b, filename_safe)
-	-- decode base64-encoded string 
+local function decode(b)
+	-- decode base64-encoded string
 	-- ignore all whitespaces, newlines, and padding ('=') in b
-	-- if optional argument filename_safe is true, '-_' are replaced
-	-- with '+/' in encoded string before decoding.
 	local cmap = b64charmap
 	local e1, e2, e3, e4
 	local st = {}
 	local t3 = {}
 	b = string.gsub(b, "%-", "+")
 	b = string.gsub(b, "_", "/")
-	local b = string.gsub(b, "[=%s]", "") -- remove all whitespaces and '='
+	b = string.gsub(b, "[=%s]", "") -- remove all whitespaces and '='
 	if b:find("[^0-9A-Za-z/+=]") then return nil, "invalid char" end
 	for i = 1, #b, 4 do
 		e1 = cmap[byte(b, i)]
@@ -97,7 +90,7 @@ local function decode(b, filename_safe)
 			t3[3] = nil
 			st[#st + 1] = concat(t3)
 			break
-		end		
+		end
 		t3[3] = char(((e3 << 6) | (e4)) & 0xff)
 		st[#st + 1] = concat(t3)
 	end --for
@@ -105,7 +98,7 @@ local function decode(b, filename_safe)
 end --decode
 
 
-return  { 
+return  {
 	-- base64 module
 	encode = encode,
 	decode = decode,

@@ -10,27 +10,27 @@ Used with Chacha20 in recent TLS and SSH [1]
 [1] https://en.wikipedia.org/wiki/Poly1305
 
 Specified in RFC 7539 [2] jointly with chacha20 stream encryption and
-with an AEAD construction (authenticated encryption with additional 
+with an AEAD construction (authenticated encryption with additional
 data).
 
 [2] http://www.rfc-editor.org/rfc/rfc7539.txt
 
 This file contains only the poly1305 functions:
 
-	auth(m, k) -> mac  
+	auth(m, k) -> mac
 		-- compute the mac for a message m and a key k
 		-- this is tha main API of the module
-	
+
 	the following functions should be used only if the MAC must be
 	computed over several message parts.
-	
+
 	init(k) -> state
 		-- initialize the poly1305 state with a key
 	update(state, m) -> state
 		-- update the state with a fragment of a message
 	finish(state) -> mac
 		-- finalize the computation and return the MAC
-	
+
 	Note: several update() can be called between init() and finish().
 	For every invocation but the last, the fragment of message m
 	passed to update() must have a length multiple of 16 bytes:
@@ -38,16 +38,16 @@ This file contains only the poly1305 functions:
 		update(st, m1) -- here,  #m1 % 16 == 0
 		update(st, m2) -- here,  #m2 % 16 == 0
 		update(st, m3) -- here,  #m3 can be arbitrary
-		mac = finish(st) 
-	
+		mac = finish(st)
+
 	The simple API auth(m, k) is implemented as
 		st = init(k)
 		update(st, m)  -- #m can be arbitrary
-		mac = finish(st) 
+		mac = finish(st)
 
 Credits:
-  This poly1305 Lua implementation is based on the cool 
-  poly1305-donna C 32-bit implementation (just try to figure 
+  This poly1305 Lua implementation is based on the cool
+  poly1305-donna C 32-bit implementation (just try to figure
   out the h * r mod (2^130-5) computation!) by Andrew Moon,
   https://github.com/floodyberry/poly1305-donna
 
@@ -57,15 +57,13 @@ See also:
 
 ]]
 
-local spack, sunpack = string.pack, string.unpack
-
 -----------------------------------------------------------
 -- poly1305
 
 local sunp = string.unpack
 
 local function poly_init(k)
-	-- k: 32-byte key as a string  
+	-- k: 32-byte key as a string
 	-- initialize internal state
 	local st = {
 		r = {
@@ -81,7 +79,7 @@ local function poly_init(k)
 			sunp('<I4', k, 25),
 			sunp('<I4', k, 29),
 		},
-		buffer = "", -- 
+		buffer = "", --
 		leftover = 0,
 		final = false,
 	}--st
@@ -146,19 +144,19 @@ local function poly_blocks(st, m)
 	return st
 end --poly_blocks()
 
-local function poly_update(st, m)	
+local function poly_update(st, m)
 	-- st: internal state
 	-- m: message:string
 	st.bytes, st.midx = #m, 1
 	-- process full blocks if any
-	if st.bytes >= 16 then 
-		poly_blocks(st, m) 
+	if st.bytes >= 16 then
+		poly_blocks(st, m)
 	end
 	--handle remaining bytes
 	if st.bytes == 0 then -- no bytes left
 		-- nothing to do? no add 0x01? - apparently not.
 	else
-		local buffer = 	string.sub(m, st.midx) 
+		local buffer = 	string.sub(m, st.midx)
 			.. '\x01' .. string.rep('\0', 16 - st.bytes -1)
 		assert(#buffer == 16)
 		st.final = true  -- this is the last block
@@ -221,10 +219,10 @@ local function poly_finish(st)
 	f = h1 + st.pad[2] + (f >> 32) ; h1 = f & 0xffffffff
 	f = h2 + st.pad[3] + (f >> 32) ; h2 = f & 0xffffffff
 	f = h3 + st.pad[4] + (f >> 32) ; h3 = f & 0xffffffff
-	-- 
+	--
 	local mac = string.pack('<I4I4I4I4', h0, h1, h2, h3)
 	-- (should zero out the state?)
-	-- 
+	--
 	return mac
 end --poly_finish()
 

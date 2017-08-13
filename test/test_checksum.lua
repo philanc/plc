@@ -3,21 +3,20 @@
 ------------------------------------------------------------
 -- checksum tests
 
-local checksum = require 'checksum'
-local bin = require 'bin'  -- for hex conversion
+local checksum = require "plc.checksum"
 
 
 local function test_checksum()
 	-- test values at wikipedia
 	-- checked with checksum on https://quickhash.com/
-	
+
 	local sfox = "The quick brown fox jumps over the lazy dog"
-	
+
 	-- crc32
-	assert(checksum.crc32(sfox) == 0x414fa339 )  
+	assert(checksum.crc32(sfox) == 0x414fa339 )
 		-- 0x414fa339 matches crc32-b on quickhash.com, not crc32 (?!?)
 	assert(checksum.crc32_nt(sfox) == 0x414fa339 )
-	
+
 	-- adler32
 	assert(checksum.adler32(sfox) == 0x5bdc0fda )
 	assert(checksum.adler32("Wikipedia") == 0x11e60398 )

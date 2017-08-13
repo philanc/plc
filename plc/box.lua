@@ -6,9 +6,9 @@ High-level encryption routines
 
 ]]
 
-local salsa20 = require "salsa20"
-local ec25519 = require "ec25519"
-local poly1305 = require "poly1305"
+local salsa20 = require "plc.salsa20"
+local ec25519 = require "plc.ec25519"
+local poly1305 = require "plc.poly1305"
 
 local function public_key(sk)
     assert(type(sk) == "string", "sk must be a string")
@@ -43,7 +43,7 @@ local function secretbox_open(et, nonce, key)
     assert(#et >= 16, "#et must be at least 16")
     local counter, nonce1, nonce2 = unpack_nonce(nonce)
     local key2 = salsa20.hsalsa20(key, counter, nonce1)
-    local key3 = salsa20.stream(key2, 0, nonce1, 32)
+    local key3 = salsa20.stream(key2, 0, nonce2, 32)
     local mac = et:sub(1, 16)
     local mac2 = poly1305.auth(et:sub(17), key3)
     if mac2 ~= mac then return nil, "invalid MAC" end
