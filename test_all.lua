@@ -1,4 +1,3 @@
-
 require "test.test_bin"
 require "test.test_base64"
 require "test.test_base58"

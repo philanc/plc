@@ -4,9 +4,9 @@
 -- test xtea.lua
 
 
-local xtea = require "xtea"
+local xtea = require "plc.xtea"
 
-local bin = require"bin"
+local bin = require "plc.bin"
 local stx = bin.stohex
 local xts = bin.hextos
 local function px(s) print(stx(s, 16, " ")) end
@@ -55,7 +55,7 @@ local function test_xtea()
 	test_ctr(("a"):rep(9))
 	test_ctr(("a"):rep(15))
 	test_ctr(("a"):rep(100))
-	
+
 	return true
 end
 

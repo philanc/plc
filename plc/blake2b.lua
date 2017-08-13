@@ -7,7 +7,8 @@ blake2b hash function -- See https://blake2.net/
 
 Specified in RFC 7693, https://tools.ietf.org/html/rfc7693
 
-BLAKE2 is based on the SHA-3 proposal BLAKE, designed by Jean-Philippe Aumasson, Luca Henzen, Willi Meier, and Raphael C.-W. Phan. 
+BLAKE2 is based on the SHA-3 proposal BLAKE, designed by Jean-Philippe Aumasson,
+Luca Henzen, Willi Meier, and Raphael C.-W. Phan.
 
 This Lua 5.3 implementation is derived from the C reference code in RFC 7693.
 
@@ -18,24 +19,8 @@ This Lua 5.3 implementation is derived from the C reference code in RFC 7693.
 -- local definitions
 
 
-local spack, sunpack = string.pack, string.unpack
-local insert, concat = table.insert, table.concat
-local strf = string.format
-
-local bin = require "bin"
-local stohex = bin.stohex
-
-local function px(s, ln) ln = ln or 32; print(bin.stohex(s, ln)) end
-local function prf(...) print(string.format(...)) end
-
-local function p64(m) 
-	p = ""
-	for i=1,16 do
-		p = p .. strf("%016x ", m[i])
-		if i%3 == 0 then p = p .. '\n' end
-	end
-	print(p)
-end
+local sunpack = string.unpack
+local concat = table.concat
 
 ------------------------------------------------------------------------
 
@@ -65,7 +50,7 @@ local iv = {
 }
 
 local sigma = {
-	-- array index start at 1 in Lua, 
+	-- array index start at 1 in Lua,
 	-- => all the permutation values are incremented by one
 	{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 },
 	{ 15, 11, 5, 9, 10, 16, 14, 7, 2, 13, 1, 3, 12, 8, 6, 4 },
@@ -108,7 +93,7 @@ local function compress(ctx, last)
 		G(v, 4, 5,10, 15, m[sigma[i][15]], m[sigma[i][16]])
 
 	end--twelve rounds
-	
+
 	for i = 1, 8 do
 		ctx.h[i] = ctx.h[i] ~ v[i] ~ v[i + 8]
 	end
@@ -129,7 +114,7 @@ local function init(outlen, key)
 	end
 	local ctx = {h={}, t={}, c=1, outlen=outlen} -- the blake2 context
 	-- note: ctx.c is the index of 1st byte free in input buffer (ctx.b)
-	-- it is not used in this implementation 
+	-- it is not used in this implementation
 	for i = 1, 8 do ctx.h[i] = iv[i] end  -- state, "param block"
 	ctx.h[1] = ctx.h[1] ~ 0x01010000 ~ (keylen << 8) ~ outlen
 	ctx.t[1] = 0   --input count low word
@@ -149,21 +134,21 @@ update = function(ctx, data)
 	-- buffer mgt cannot be done the C way..
 	local bln, rln, iln
 	local i = 1 -- index of 1st byte to process in data
-	while true do  
-		bln = #ctx.b  -- current number of bytes in the input buffer 
+	while true do
+		bln = #ctx.b  -- current number of bytes in the input buffer
 		assert(bln <= 128)
 		if bln == 128 then --ctx.b is full; process it.
 			-- add counters
-			ctx.t[1] = ctx.t[1] + 128 
+			ctx.t[1] = ctx.t[1] + 128
 			-- warning: this is a signed 64bit addition
 			-- here it is assumed that the total input is less
-			-- than 2^63 bytes (this should be enough for a 
+			-- than 2^63 bytes (this should be enough for a
 			-- pure Lua implementation!) => ctx.t[1] overflow is ignored.
 			compress(ctx, false)   -- false means not last
 			ctx.b = "" -- empty buffer
 		else -- ctx.b is not full; append more bytes from data
 			rln =  128 - bln  -- remaining space (in bytes) in ctx.b
-			iln = #data - i + 1  -- number of bytes yet to process in data 
+			iln = #data - i + 1  -- number of bytes yet to process in data
 			if iln < rln then
 				ctx.b = ctx.b .. data:sub(i, i + iln -1)
 				-- here, all data bytes have been processed or put in
@@ -180,11 +165,11 @@ end --update()
 local function final(ctx)
 	-- finalize the hash and return the digest as a string
 	--
-	local bln = #ctx.b  
+	local bln = #ctx.b
 	-- add number of remaining bytes in buffer (ignore carry overflow)
 	ctx.t[1] = ctx.t[1] + bln
 	-- pad the buffer with zero bytes
-	local rln =  128 - bln  -- remaining space (in bytes) in ctx.b	
+	local rln =  128 - bln  -- remaining space (in bytes) in ctx.b
 	ctx.b = ctx.b .. string.rep('\0', rln)
 	compress(ctx, true) -- true means final block
 	-- extract the digest (outlen bytes long)

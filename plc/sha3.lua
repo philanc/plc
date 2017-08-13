@@ -1,12 +1,12 @@
 -- Copyright (c) 2014  Joseph Wallace
--- Copyright (c) 2015  Phil Leblanc  
+-- Copyright (c) 2015  Phil Leblanc
 -- License: MIT - see LICENSE file
 ------------------------------------------------------------
 
 -- 170612 SHA-3 padding fixed.
 -- (reported by Michael Rosenberg https://github.com/doomrobo)
 
--- 150827 original code modified and optimized 
+-- 150827 original code modified and optimized
 -- (more than 2x performance improvement for sha3-512) --phil
 
 -- Directly devived from a Keccak implementation by Joseph Wallace
@@ -15,7 +15,7 @@
 
 
 ------------------------------------------------------------
--- sha3 / keccak 
+-- sha3 / keccak
 
 local char	= string.char
 local concat	= table.concat
@@ -70,7 +70,7 @@ local function keccakF(st)
 	for round = 1, ROUNDS do
 --~ 		local permuted = permuted
 --~ 		local parities = parities
-		
+
 		-- theta()
 		for x = 1,5 do
 			parities[x] = 0
@@ -78,12 +78,12 @@ local function keccakF(st)
 			for y = 1,5 do parities[x] = parities[x] ~ sx[y] end
 		end
 		--
-		-- unroll the following loop  
+		-- unroll the following loop
 		--for x = 1,5 do
 		--	local p5 = parities[(x)%5 + 1]
 		--	local flip = parities[(x-2)%5 + 1] ~ ( p5 << 1 | p5 >> 63)
 		--	for y = 1,5 do st[x][y] = st[x][y] ~ flip end
-		--end		
+		--end
 		local p5, flip, s
 		--x=1
 		p5 = parities[2]
@@ -110,12 +110,13 @@ local function keccakF(st)
 		flip = parities[4] ~ (p5 << 1 | p5 >> 63)
 		s = st[5]
 		for y = 1,5 do s[y] = s[y] ~ flip end
-		
+
 		-- rhopi()
 		for y = 1,5 do
 			local py = permuted[y]
+			local r
 			for x = 1,5 do
-				local s, r = st[x][y], rotationOffsets[x][y]
+				s, r = st[x][y], rotationOffsets[x][y]
 				py[(2*x + 3*y)%5 + 1] = (s << r | s >> (64-r))
 			end
 		end
@@ -126,9 +127,9 @@ local function keccakF(st)
 		--		local combined = (~ permuted[(x)%5 +1][y]) & permuted[(x+1)%5 +1][y]
 		--		st[x][y] = permuted[x][y] ~ combined
 		--	end
-		--end		
-		
-		local s, p, p1, p2
+		--end
+
+		local p, p1, p2
 		--x=1
 		s, p, p1, p2 = st[1], permuted[1], permuted[2], permuted[3]
 		for y = 1,5 do s[y] = p[y] ~ (~ p1[y]) & p2[y] end
@@ -144,7 +145,7 @@ local function keccakF(st)
 		--x=5
 		s, p, p1, p2 = st[5], permuted[5], permuted[1], permuted[2]
 		for y = 1,5 do s[y] = p[y] ~ (~ p1[y]) & p2[y] end
-		
+
 		-- iota()
 		st[1][1] = st[1][1] ~ roundConstants[round]
 	end
@@ -152,10 +153,10 @@ end
 
 
 local function absorb(st, buffer)
-	
+
 	local blockBytes = st.rate / 8
 	local blockWords = blockBytes / 8
-	
+
 	-- append 0x01 byte and pad with zeros to block size (rate/8 bytes)
 	local totalBytes = #buffer + 1
 	-- for keccak (2012 submission), the padding is byte 0x01 followed by zeros
@@ -163,17 +164,17 @@ local function absorb(st, buffer)
 
 	-- Keccak:
 	-- buffer = buffer .. ( '\x01' .. char(0):rep(blockBytes - (totalBytes % blockBytes)))
-	
+
 	-- SHA3:
 	buffer = buffer .. ( '\x06' .. char(0):rep(blockBytes - (totalBytes % blockBytes)))
 	totalBytes = #buffer
-	
+
 	--convert data to an array of u64
 	local words = {}
 	for i = 1, totalBytes - (totalBytes % 8), 8 do
 		words[#words + 1] = sunpack('<I8', buffer, i)
 	end
-	
+
 	local totalWords = #words
 	-- OR final word with 0x80000000 to set last bit of state to 1
 	words[totalWords] = words[totalWords] | 0x8000000000000000
@@ -202,7 +203,6 @@ local function squeeze(st)
 	local blockBytes = st.rate / 8
 	local blockWords = blockBytes / 4
 	-- fetch blocks out of state
-	local words = {}
 	local hasht = {}
 	local offset = 1
 	for y = 1, 5 do
@@ -235,8 +235,8 @@ local function keccakHash(rate, length, data)
 end
 
 -- output raw bytestrings
-function keccak256Bin(data) return keccakHash(1088, 256, data) end
-function keccak512Bin(data) return keccakHash(576, 512, data) end
+local function keccak256Bin(data) return keccakHash(1088, 256, data) end
+local function keccak512Bin(data) return keccakHash(576, 512, data) end
 
 --return module
 return {

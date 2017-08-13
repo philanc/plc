@@ -1,11 +1,11 @@
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
 
 ------------------------------------------------------------
---[[ 
+--[[
 
 ec25519 - curve25519 scalar multiplication
 
-Ported to Lua from the original C tweetnacl implementation, 
+Ported to Lua from the original C tweetnacl implementation,
 (public domain, by Dan Bernstein, Tanja Lange et al
 see http://tweetnacl.cr.yp.to/ )
 
@@ -15,32 +15,19 @@ and function names have been conserved as much as possible.
 ]]
 
 ------------------------------------------------------------
--- debug functions
-local function pt(t) print(table.concat(t, " ")) end
-local function pf(...) print(string.format(...)) end
-
-local function verify(x, y)
-	-- verify that x[i] == y[i] for all i
-	b = #x == #y
-	for i = 1, #x do b = b and (x[i] == y[i]) end
-	return b
-end
-
-------------------------------------------------------------
 
 -- set25519() not used
 
 local function car25519(o)
 	local c
-	local zz
 	for i = 1, 16 do
 		o[i] = o[i] + 65536 -- 1 << 16
-		-- lua ">>" doesn't perform sign extension... 
+		-- lua ">>" doesn't perform sign extension...
 		-- so the following >>16 doesn't work with negative numbers!!
 		-- ...took a bit of time to find this one :-)
-		-- c = o[i] >> 16 
-		c = o[i] // 65536  
-		if i < 16 then 
+		-- c = o[i] >> 16
+		c = o[i] // 65536
+		if i < 16 then
 			o[i+1] = o[i+1] + (c - 1)
 		else
 			o[1] = o[1] + 38 * (c - 1)
@@ -52,7 +39,7 @@ end --car25519()
 local function sel25519(p, q, b)
 	local c = ~(b-1)
 	local t
-	for i = 1, 16 do 
+	for i = 1, 16 do
 		t = c & (p[i] ~ q[i])
 		p[i] = p[i] ~ t
 		q[i] = q[i] ~ t
@@ -67,7 +54,7 @@ local function pack25519(o, n)
 	car25519(t)
 	car25519(t)
 	car25519(t)
-	for j = 1, 2 do
+	for _ = 1, 2 do
 		m[1] = t[1] - 0xffed
 		for i = 2, 15 do
 			m[i] = t[i] - 0xffff - ((m[i-1] >> 16) & 1)
@@ -161,7 +148,7 @@ local function crypto_scalarmult(q, n, p)
 	a[1] = 1
 	d[1] = 1
 	for i = 254, 0, -1 do
-		r = (z[(i>>3)+1] >> (i & 7)) & 1
+		local r = (z[(i>>3)+1] >> (i & 7)) & 1
 		sel25519(a,b,r)
 		sel25519(c,d,r)
 		A(e,a,c)
@@ -191,7 +178,7 @@ local function crypto_scalarmult(q, n, p)
 		x[i+48] = b[i]
 		x[i+64] = d[i]
 	end
-	-- cannot use pointer arithmetics... 
+	-- cannot use pointer arithmetics...
 	local x16, x32 = {}, {}
 	for i = 1, #x do
 		if i > 16 then x16[i-16] = x[i] end
@@ -205,9 +192,9 @@ end -- crypto_scalarmult
 
 local t_9 = { -- u8 * 32
 	9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 
-	} 
-		
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	}
+
 local function crypto_scalarmult_base(q, n)
 	-- out q[], in n[]
 	return crypto_scalarmult(q, n, t_9)
@@ -216,7 +203,7 @@ end
 
 --[[
 
-if sk is the private key, the corresponding public key pk 
+if sk is the private key, the corresponding public key pk
 is obtained with:
 	crypto_scalarmult_base(pk, sk)
 

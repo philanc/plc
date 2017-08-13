@@ -3,7 +3,7 @@
 -- crude performance tests
 
 
-local bin = require"bin"
+local bin = require "plc.bin"
 local stx = bin.stohex
 local xts = bin.hextos
 local function px(s) print(stx(s, 16, " ")) end
@@ -11,33 +11,33 @@ local function pf(...) print(string.format(...)) end
 
 local function pst(st)
 	for i = 1,8 do
-		pf("x[%d]:  %08X     c[%d]:  %08X", 
+		pf("x[%d]:  %08X     c[%d]:  %08X",
 			i, st.x[i], i, st.c[i] )
 	end
-end	
+end
 
 local spack, sunpack = string.pack, string.unpack
 local app, concat = table.insert, table.concat
 local char, byte, strf = string.char, string.byte, string.format
 
 ------------------------------------------------------------------------
-local rc4 = require "rc4"
-local rabbit = require "rabbit"
-local cha = require "chacha20"
-local salsa = require "salsa20"
-local sha2 = require "sha2"
-local sha3 = require "sha3"
-local poly = require "poly1305"
-local chk = require "checksum"
-local xtea = require "xtea"
-local blake2b = require "blake2b"
-local norx = require "norx"
-local norx32 = require "norx32"
-local md5 = require "md5"
+local rc4 = require "plc.rc4"
+local rabbit = require "plc.rabbit"
+local cha = require "plc.chacha20"
+local salsa = require "plc.salsa20"
+local sha2 = require "plc.sha2"
+local sha3 = require "plc.sha3"
+local poly = require "plc.poly1305"
+local chk = require "plc.checksum"
+local xtea = require "plc.xtea"
+local blake2b = require "plc.blake2b"
+local norx = require "plc.norx"
+local norx32 = require "plc.norx32"
+local md5 = require "plc.md5"
 
 
-local base64 = require "base64"
-local base58 = require "base58"
+local base64 = require "plc.base64"
+local base58 = require "plc.base58"
 
 ------------------------------------------------------------
 
@@ -48,7 +48,7 @@ local function start(d, c)
 	cmt = c or "" --optional comment
 	t0, c0 = os.time(), os.clock()
 end
-	
+
 local function done()
 	local dt, dc = os.time()-t0, os.clock()-c0
 	pf("- %-20s %6d %9.2f   %s", desc, dt, dc, cmt)
@@ -72,7 +72,7 @@ local function perf_encrypt()
 	local iv = "\x40\x41\x42\x43\x44\x45\x46\x47"
 	local const = "\x07\x00\x00\x00"
 	local et, h  -- encrypted text, hash/hmac
-	
+
 	print("Plain text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
 
@@ -96,16 +96,16 @@ local function perf_encrypt20()
 	local iv = "\x40\x41\x42\x43\x44\x45\x46\x47"
 	local const = "\x07\x00\x00\x00"
 	local et, h  -- encrypted text, hash/hmac
-	
+
 	print("Plain text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
 
 	start("chacha20")
-	et = cha.encrypt(k32, counter, nonce, plain)	
+	et = cha.encrypt(k32, counter, nonce, plain)
 	done()
 
 	start("salsa20")
-	et = salsa.encrypt(k32, counter, nonce8, plain)	
+	et = salsa.encrypt(k32, counter, nonce8, plain)
 	done()
 	--
 end --perf_encrypt20
@@ -115,13 +115,13 @@ end --perf_encrypt20
 local function perf_xor()
 	--
 	start("xor1, k16")
-	et = bin.xor1(k16, plain)	
+	et = bin.xor1(k16, plain)
 	done()
 	--
 	-- xor64 removed
 	--
 	start("xor8, k16")
-	et = bin.xor8(k16, plain)	
+	et = bin.xor8(k16, plain)
 	done()
 	--
 end --perf_xor
@@ -130,7 +130,7 @@ end --perf_xor
 
 local function perf_sha2_sha3()
 	local et, h  -- encrypted text, hash/hmac
-	
+
 	print("Plain text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
 
@@ -151,7 +151,7 @@ end --perf_sha2_sha3
 
 local function perf_misc()
 	local et, h  -- encrypted text, hash/hmac
-	
+
 	print("Plain text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
 
@@ -193,8 +193,8 @@ local function perf_xtea()
 	--
 	start("xtea (encr block only)")
 	local st = xtea.keysetup(k16)
-	for i = 1, #plain//8 do 
-		xtea.encrypt_u64(st, 0xaaaa5555aaaa5555) 
+	for i = 1, #plain//8 do
+		xtea.encrypt_u64(st, 0xaaaa5555aaaa5555)
 	end
 	done()
 	--
@@ -205,7 +205,7 @@ end	--perf_xtea
 local function perf_blake2b()
 	local dig
 	--
-	
+
 	print("Text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
 	for j = 1, 3 do
@@ -234,7 +234,7 @@ local function perf_norx()
 	print("Text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
 	--
-	for i = 1, 3 do 
+	for i = 1, 3 do
 		start("norx encrypt")
 		local c = norx.aead_encrypt(k, n, plain, a, z)
 		done()
@@ -243,7 +243,7 @@ local function perf_norx()
 		assert(p == plain)
 		done()
 	end
-	--	
+	--
 	for j = 1, 1 do
 		local pt = {}
 		local cnt = 256 * 10  -- cnt * 4k = 10mb
@@ -260,7 +260,7 @@ local function perf_norx()
 		end
 		done()
 	end
-	--	
+	--
 end	--perf_norx
 
 ------------------------------------------------------------
@@ -273,7 +273,7 @@ local function perf_norx32()
 	local m = plain
 	print("Text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
-	
+
 	for j = 1, 3 do
 		start("norx32 encrypt")
 		local c = norx32.aead_encrypt(k, n, plain, a, z)
@@ -283,7 +283,7 @@ local function perf_norx32()
 		assert(p == plain)
 		done()
 	end
-	--	
+	--
 end	--perf_norx32
 
 ------------------------------------------------------------
@@ -292,13 +292,13 @@ local function perf_md5()
 	local m = plain
 	print("Text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
-	
+
 	for j = 1, 3 do
 		start("md5")
 		local dig = md5.hash(m)
 		done()
 	end
-	--	
+	--
 end	--perf_md5
 
 
@@ -324,14 +324,14 @@ Plain text size (in MBytes):	10
 Times:  elapsed (os.time) and CPU (os.clock) in seconds
 
 
-- xtea ctr                 18     18.20   
-- xtea (encr block only)   15     15.45   
+- xtea ctr                 18     18.20
+- xtea (encr block only)   15     15.45
 - rabbit                   10      9.53
 - rc4 raw                  16     15.80
 - chacha20                 17     16.94
-- xor1, k16                11     11.25   
+- xor1, k16                11     11.25
 - xor64, k16                9      9.05   (removed)
-- xor8, k16                 2      1.89   
+- xor8, k16                 2      1.89
 
 - sha2-256                 30     30.22
 - sha3-256                 54     54.53
@@ -339,65 +339,65 @@ Times:  elapsed (os.time) and CPU (os.clock) in seconds
 
 - base64 encode            13     12.60   (res: 13.3MB)
 - base64 decode             8      8.67   (res: 7.5MB)
-- adler-32                  3      2.62   
-- crc-32                    4      3.68   
-- crc-32 (no table)        12     11.30   
-- poly1305 hmac             2      1.89   
+- adler-32                  3      2.62
+- crc-32                    4      3.68
+- crc-32 (no table)        12     11.30
+- poly1305 hmac             2      1.89
 
 ---
 
 tests run on a laptop - Linux 3.10 x86_64 CPU i5 M430 @ 2.27 GHz
 (Lua 5.3.3 64 bits)
 
-- blake2b-512               9      9.19   
-- blake2b-256               9      9.21   
-- md5                       4      3.70   
+- blake2b-512               9      9.19
+- blake2b-256               9      9.21
+- md5                       4      3.70
 
-- rc4 raw                   7      7.65   
-- rabbit                    5      4.71   
+- rc4 raw                   7      7.65
+- rabbit                    5      4.71
 - chacha20                  7      7.77   * linux 4.4 x86_64
 - salsa20                   7      7.80   * id.
-- norx encrypt              4      4.12   
-- norx decrypt              3      3.70   
-- norx encrypt 10mb (4k messages)       4      3.98   
-- norx decrypt 10mb (4k messages)       4      4.13   
-- norx32 encrypt            8      8.56   
-- norx32 decrypt            8      7.84   
+- norx encrypt              4      4.12
+- norx decrypt              3      3.70
+- norx encrypt 10mb (4k messages)       4      3.98
+- norx decrypt 10mb (4k messages)       4      4.13
+- norx32 encrypt            8      8.56
+- norx32 decrypt            8      7.84
 
 ---
 
 tests on desktop HP (windows 7 64bit SP1, cpu intel core i5-3470 3.20ghz
 (Lua 5.3.3 32 bits, windows)
 
-- sha2-256                 22     21.76   
-- sha3-256                 34     34.59   
-- sha3-512                 65     64.82   
-- blake2b-512              13     13.28   
-- blake2b-256              13     13.29   
+- sha2-256                 22     21.76
+- sha3-256                 34     34.59
+- sha3-512                 65     64.82
+- blake2b-512              13     13.28
+- blake2b-256              13     13.29
 
-- rc4 raw                  10     10.20   
-- rabbit                    6      6.41   
-- chacha20                 12     11.23   
-- xtea ctr                 13     13.24   
-- xtea (encr block only)   11     11.26   
+- rc4 raw                  10     10.20
+- rabbit                    6      6.41
+- chacha20                 12     11.23
+- xtea ctr                 13     13.24
+- xtea (encr block only)   11     11.26
 
-- norx encrypt              5      4.80   
-- norx decrypt              5      4.46   
-- norx encrypt 10mb (4k messages)       5      5.10   
-- norx decrypt 10mb (4k messages)       5      4.85   
-- norx32 encrypt           11     10.76   
-- norx32 decrypt           10     10.03   
+- norx encrypt              5      4.80
+- norx decrypt              5      4.46
+- norx encrypt 10mb (4k messages)       5      5.10
+- norx decrypt 10mb (4k messages)       5      4.85
+- norx32 encrypt           11     10.76
+- norx32 decrypt           10     10.03
 
 	-- norx w ROTR64 and H as functions:
-	- norx encrypt              8      7.92   
-	- norx decrypt              7      7.36   
+	- norx encrypt              8      7.92
+	- norx decrypt              7      7.36
 
-- xor1, k16                 8      8.30   
-- xor8, k16                 1      1.39   
+- xor1, k16                 8      8.30
+- xor8, k16                 1      1.39
 - base64 encode             9      9.28   (res: 13.3MB)
 - base64 decode             8      7.55   (res: 7.5MB)
-- adler-32                  1      1.75   
-- crc-32                    3      2.37   
-- crc-32 (no table)         8      8.21   
-- poly1305 hmac             1      1.56   
+- adler-32                  1      1.75
+- crc-32                    3      2.37
+- crc-32 (no table)         8      8.21
+- poly1305 hmac             1      1.56
 ]]
