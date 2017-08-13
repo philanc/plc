@@ -4,7 +4,7 @@ local pk_a, sk_a = box.keypair()
 local pk_b, sk_b = box.keypair()
 
 local k = ("k"):rep(32)
-local n = ("n"):rep(24)
+local n = ("123456"):rep(4)
 local pt = "abc"
 
 do

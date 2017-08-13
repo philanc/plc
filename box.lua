@@ -50,7 +50,7 @@ local function secretbox_open(et, nonce, key)
     assert(#et >= 16, "#et must be at least 16")
     local counter, nonce1, nonce2 = unpack_nonce(nonce)
     local key2 = salsa20.hsalsa20(key, counter, nonce1)
-    local key3 = salsa20.stream(key2, 0, nonce1, 32)
+    local key3 = salsa20.stream(key2, 0, nonce2, 32)
     local mac = et:sub(1, 16)
     local mac2 = poly1305.auth(et:sub(17), key3)
     if mac2 ~= mac then return nil, "invalid MAC" end
