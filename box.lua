@@ -10,20 +10,13 @@ local salsa20 = require "salsa20"
 local ec25519 = require "ec25519"
 local poly1305 = require "poly1305"
 
-local M
-
-local function randombytes(n)
-    -- Never use directly. Always use M.randombytes,
-    -- which can be overridden with a secure RNG.
-    local t = {}
-    for i = 1, n do t[i] = math.random(0, 255) end
-    return t
-end
-
-local function keypair()
-    local sk, pk = M.randombytes(32), {}
+local function public_key(sk)
+    assert(type(sk) == "string", "sk must be a string")
+    assert(#sk == 32, "#sh must be 32")
+    sk = table.pack(sk:byte(1, 32))
+    local pk = {}
     ec25519.crypto_scalarmult_base(pk, sk)
-    return string.char(table.unpack(pk)), string.char(table.unpack(sk))
+    return string.char(table.unpack(pk))
 end
 
 local function unpack_nonce(nonce)
@@ -77,14 +70,11 @@ local function box_open(et, nonce, pk_a, sk_b)
     return secretbox_open(et, nonce, stream_key(pk_a, sk_b))
 end
 
-M = {
-    randombytes = randombytes,
-    keypair = keypair,
+return {
+    public_key = public_key,
     secretbox = secretbox,
     secretbox_open = secretbox_open,
     stream_key = stream_key,
     box = box,
     box_open = box_open,
 }
-
-return M
