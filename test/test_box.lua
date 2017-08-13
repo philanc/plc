@@ -13,7 +13,7 @@ local sk_a, sk_b = new_key(), new_key()
 local pk_a, pk_b = box.public_key(sk_a), box.public_key(sk_b)
 
 local k = ("k"):rep(32)
-local n = ("n"):rep(24)
+local n = ("123456"):rep(4)
 local pt = "abc"
 
 do
