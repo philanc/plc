@@ -3,7 +3,7 @@
 ------------------------------------------------------------
 -- base64 tests
 
-local base64 = require 'base64'
+local base64 = require "plc.base64"
 local be = base64.encode
 local bd = base64.decode
 

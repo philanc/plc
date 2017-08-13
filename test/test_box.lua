@@ -1,4 +1,4 @@
-local box = require "box"
+local box = require "plc.box"
 
 local function new_key()
     -- Note: we use math.random in this test because it is portable,

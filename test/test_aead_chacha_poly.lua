@@ -1,8 +1,8 @@
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
 ------------------------------------------------------------
 
-local bin = require'bin'  -- used for hex conversions
-local aead = require "aead_chacha_poly"
+local bin = require "plc.bin"  -- used for hex conversions
+local aead = require "plc.aead_chacha_poly"
 
 
 local function test_aead_encrypt()

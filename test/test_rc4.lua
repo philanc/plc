@@ -3,7 +3,7 @@
 ------------------------------------------------------------
 -- base64 tests
 
-local rc4 = require 'rc4'
+local rc4 = require "plc.rc4"
 
 local function test_rc4()
 	local k = ('1'):rep(16)

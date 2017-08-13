@@ -3,15 +3,15 @@
 ------------------------------------------------------------
 -- sha3 tests
 
-local sha3 = require 'sha3'
-local bin = require 'bin'  -- for hex conversion
+local sha3 = require "plc.sha3"
+local bin = require "plc.bin"  -- for hex conversion
 
 local insert, concat = table.insert, table.concat
 
 local function test_sha3()
-	-- checked with sha3 512 and 256 on 
+	-- checked with sha3 512 and 256 on
 	-- https://emn178.github.io/online-tools/sha3_512.html
-	-- and with Python's hashlib.sha3, thanks to Michael Rosenberg 
+	-- and with Python's hashlib.sha3, thanks to Michael Rosenberg
 	-- (https://github.com/doomrobo)
 	assert(sha3.hash512("") == bin.hextos[[
 		a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a6
@@ -28,10 +28,10 @@ local function test_sha3()
 		3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532 ]])
 	assert(sha3.hash256(('1'):rep(128)) == bin.hextos[[
 		fdfe32511b76f38a71a7ac95a4c98add2b41debab35e1b7dda8bb3b14c280533 ]])
-		
+
 	-- check padding (all input sizes modulo 8)
-	st = { 
-		"", "a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg", 
+	st = {
+		"", "a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
 		"abcdefgh", "abcdefghi", "abcdefghij"
 	}
 	ht = {}  -- hex digest values
@@ -66,7 +66,7 @@ c9f25eee75ab4cf9a8cfd44f4992b282079b64d94647edbd88e818e44f701edeb450818f7272cba7
 b3e0886fff5ca1df436bf4f6efc124219f908c0abec14036e392a3204f4208b396da0da40e3273f596d4d3db1be4627a16f34230af12ccea92d5d107471551d7
 ]]
 
-	assert(res == expected)	
+	assert(res == expected)
 end
 
 test_sha3()

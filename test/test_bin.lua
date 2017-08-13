@@ -3,7 +3,7 @@
 
 -- test bin.lua
 
-local bin = require "bin"
+local bin = require "plc.bin"
 
 local stx = bin.stohex
 local xts = bin.hextos
@@ -24,20 +24,20 @@ local function test_bin()
 	assert(stx(s13) == "0102030405060708090a0b0c0d")
 	assert(stx(s13, 16) == "0102030405060708090a0b0c0d")
 	assert(stx(s13, 16, ':') == "01:02:03:04:05:06:07:08:09:0a:0b:0c:0d")
-	assert(stx(s26) == 
+	assert(stx(s26) ==
 		"0102030405060708090a0b0c0d0102030405060708090a0b0c0d")
-	assert(stx(s26, 16) == 
+	assert(stx(s26, 16) ==
 		"0102030405060708090a0b0c0d010203\n0405060708090a0b0c0d")
-	assert(stx(s26, 16, '+') == 
+	assert(stx(s26, 16, '+') ==
 		"01+02+03+04+05+06+07+08+09+0a+0b+0c+0d+" ..
 		"01+02+03\n04+05+06+07+08+09+0a+0b+0c+0d" )
 	--
 	assert(xts("0102030405060708090a0b0c0d") == s13)
 	-- ignore whitespace
 	assert(xts("  01020304050 \n 6070\t8090a0 b 0 c0d\n") == s13)
-	-- with unsafe=true, invalid chars and whitespace are NOT ignored... 
+	-- with unsafe=true, invalid chars and whitespace are NOT ignored...
 	assert(xts("01 02 030405060708090a0b0c0d", true) ~= s13)
-	-- error cases 
+	-- error cases
 	--   (invalid chars)
 	assert(not pcall(xts, "!!!  0102030405060708090a0b0c0d"))
 	--   (invalid length, after whitespace removal)

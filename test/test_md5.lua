@@ -3,8 +3,8 @@
 ------------------------------------------------------------------------
 -- md5 tests
 
-local md5 = require "md5"
-local bin = require "bin"
+local md5 = require "plc.md5"
+local bin = require "plc.bin"
 
 local xts = bin.hextos
 
@@ -16,7 +16,7 @@ function test_md5()
 	assert(md5("a") == xts("0cc175b9c0f1b6a831c399e269772661"))
 	assert(md5("abc") == xts("900150983cd24fb0d6963f7d28e17f72"))
 	assert(md5("message digest") == xts("f96b697d7cb7938d525a2f31aaf161d0"))
-	assert(md5("abcdefghijklmnopqrstuvwxyz") 
+	assert(md5("abcdefghijklmnopqrstuvwxyz")
 		== xts("c3fcd3d76192e4007dfb496cca67e13b"))
 	assert(md5(
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")

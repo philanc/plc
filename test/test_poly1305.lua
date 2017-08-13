@@ -1,12 +1,12 @@
 -- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
 ------------------------------------------------------------
 
-local bin = require'bin'  -- used for hex conversions
+local bin = require "plc.bin"  -- used for hex conversions
 
 
 -- test poly1305.lua
 
-local poly = require "poly1305"
+local poly = require "plc.poly1305"
 
 local test_poly_auth = function ()
 	-- "nacl" test vector
@@ -41,9 +41,9 @@ local test_poly_auth = function ()
 		)
 	local mac = poly.auth(naclmsg, naclkey)
 	assert (mac == naclmac)
-	
+
 	-- "wrap" test vector
-	-- generates a final value of (2^130 - 2) == 3 
+	-- generates a final value of (2^130 - 2) == 3
 	local wrapkey = string.char(
 		0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 		0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -60,7 +60,7 @@ local test_poly_auth = function ()
 		)
 	mac = poly.auth(wrapmsg, wrapkey)
 	assert (mac == wrapmac)
-	
+
 	-- rfc 7539 test vector
 	rfcmsg = "Cryptographic Forum Research Group"
 	rfckey = bin.hextos(

@@ -6,9 +6,9 @@ High-level encryption routines
 
 ]]
 
-local salsa20 = require "salsa20"
-local ec25519 = require "ec25519"
-local poly1305 = require "poly1305"
+local salsa20 = require "plc.salsa20"
+local ec25519 = require "plc.ec25519"
+local poly1305 = require "plc.poly1305"
 
 local function public_key(sk)
     assert(type(sk) == "string", "sk must be a string")
