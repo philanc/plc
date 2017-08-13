@@ -89,11 +89,7 @@ Some (un)related utilities:
 
 * Base64, Base58  and Hex encoding/decoding
 
-### Note
-
-*randombytes()* -- There is no portable interface in Lua to a OS or hardware random generator. The function `randombytes()` in file box.lua is provided only to allow testing the box module.  It must be redefined for any real use of the `keypair()` function in the module.
-
-### In the future...  
+### In the future...
 
 Implementations that may come some day:
 
