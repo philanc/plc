@@ -1,0 +1,19 @@
+language: c
+
+sudo: false
+
+env:
+    global:
+        - LOCALUA_NO_LUAROCKS=y
+        - LOCALUA_NO_COMPAT=y
+
+before_install:
+    - |
+        mkdir -p $HOME/localua
+        pushd $HOME/localua
+            curl "https://raw.githubusercontent.com/catwell/localua/master/localua.sh" -o localua.sh
+            bash localua.sh .
+        popd
+
+script:
+    - $HOME/localua/bin/lua test_all.lua
