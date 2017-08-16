@@ -6,6 +6,9 @@
 
 local chacha20 = require "plc.chacha20"
 
+local bin = require "plc.bin"
+local stx, xts = bin.stohex, bin.hextos
+
 ------------------------------------------------------------
 
 local function test_chacha20_encrypt()
@@ -33,6 +36,15 @@ local function test_chacha20_encrypt()
 	-- px(et)
 	assert(et == expected)
 	assert(plain == chacha20.encrypt(key, counter, nonce, et))
+	--
+	-- test some input lengths
+	for i = 1, 66 do
+		plain = ('p'):rep(i)
+		et = chacha20.encrypt(key, counter, nonce, plain)
+		local dt = chacha20.decrypt(key, counter, nonce, et)
+		assert((#et == #plain) and (dt == plain))
+	end
+	--
 	return true
 end
 

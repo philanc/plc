@@ -20,6 +20,16 @@ local function test_salsa20_encrypt_decrypt()
 	local counter = 1
 	local et = salsa20.encrypt(key, counter, nonce, plain)
 	assert(plain == salsa20.encrypt(key, counter, nonce, et))
+	-- 
+	-- test some input lengths
+	for i = 1, 66 do
+		plain = ('p'):rep(i)
+		et = salsa20.encrypt(key, counter, nonce, plain)
+		local dt = salsa20.decrypt(key, counter, nonce, et)
+		assert((#et == #plain) and (dt == plain))
+	end
+	--
+	return true	
 end
 
 local function _test_salsa20_ecrypt(hex_key, hex_nonce, bytes, hex_expected)
