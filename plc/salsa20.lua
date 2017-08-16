@@ -135,7 +135,7 @@ local salsa20_encrypt = function(key, counter, nonce, pt)
 	local countera = {counter & 0xffffffff, counter >> 32}
 	local t = {} -- used to collect all encrypted blocks
 	local ptidx = 1
-	while ptidx < #pt do
+	while ptidx <= #pt do
 		app(t, salsa20_encrypt_block(keya, countera, noncea, pt, ptidx))
 		ptidx = ptidx + 64
 		countera[1] = countera[1] + 1

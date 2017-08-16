@@ -130,7 +130,7 @@ local chacha20_encrypt = function(key, counter, nonce, pt)
 	local noncea = table.pack(string.unpack("<I4I4I4", nonce))
 	local t = {} -- used to collect all encrypted blocks
 	local ptidx = 1
-	while ptidx < #pt do
+	while ptidx <= #pt do
 		app(t, chacha20_encrypt_block(keya, counter, noncea, pt, ptidx))
 		ptidx = ptidx + 64
 		counter = counter + 1
