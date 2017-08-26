@@ -46,6 +46,15 @@ local function test_rabbit_encrypt()
 				D74F926E6976CD0A9B1A3AE9DD8CB43F
 				F5CD60F2541FF7F22C5C70CE07613989 ]]
 	assert(ec == exp)
+	
+	-- test proper block handling and padding  for various input sizes
+	for i = 1, 66 do 
+		plain = ('p'):rep(i)
+		crypted = rabbit.encrypt(key, iv, plain)
+		assert(#crypted == #plain)		
+		assert(rabbit.decrypt(key, iv, crypted) == plain)
+	end
+	--
 
 	return true
 end

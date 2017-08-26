@@ -14,6 +14,16 @@ local function test_rc4()
 	assert(encr == "\x01\x78\xa1\x09\xf2\x21")
 	plain = plain:rep(100)
 	assert(plain == rc4.encrypt(k, rc4.decrypt(k, plain)))
+
+	-- test proper block handling and padding  for various input sizes
+	for i = 1, 66 do 
+		plain = ('p'):rep(i)
+		crypted = rc4.encrypt(k, plain)
+		assert(#crypted == #plain)		
+		assert(rc4.decrypt(k, crypted) == plain)
+	end
+	--
+
 end
 
 

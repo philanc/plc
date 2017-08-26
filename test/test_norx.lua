@@ -39,6 +39,26 @@ local function test_norx()
 	assert(#crypted == #plain + 32)
 	assert(p == plain)
 	--
+	-- test proper block handling and padding  for various input sizes
+	for i = 1, 66 do 
+		plain = ('p'):rep(i)
+		crypted = norx.aead_encrypt(key, nonce, plain)
+		assert(#crypted == #plain + 32)		
+		assert(norx.aead_decrypt(key, nonce, crypted) == plain)
+	end
+	--
+	-- test against AD handling issues
+	plain = ('p'):rep(65)
+	for i = 1, 9 do
+		a = ('A'):rep(i) -- AD prefix
+		for j = 1, 9 do
+			z = ('Z'):rep(i) -- AD suffix
+			crypted = norx.aead_encrypt(key, nonce, plain, a, z)
+			assert(#crypted == #plain + 32)		
+			assert(norx.aead_decrypt(key, nonce, crypted, a, z) == plain)
+		end
+	end
+	--
 end --test_norx()
 
 
