@@ -12,6 +12,8 @@ see http://tweetnacl.cr.yp.to/ )
 To make debug and validation easier, the original code structure
 and function names have been conserved as much as possible.
 
+
+
 ]]
 
 ------------------------------------------------------------
@@ -200,17 +202,82 @@ local function crypto_scalarmult_base(q, n)
 	return crypto_scalarmult(q, n, t_9)
 end
 
+------------------------------------------------------------------------
+-- convenience function (using binary strings instead of byte tables)
+--
+-- curve point and scalars are represented as 32-byte binary strings
+-- (encoded as little endian)
+
+local function scalarmult(n, p)
+	-- n, a scalar (little endian) as a 32-byte string
+	-- p, a curve point as a 32-byte string
+	-- return the scalar product np as a 32-byte string
+	local qt, nt, pt = {}, {}, {} 
+	for i = 1, 32 do 
+		nt[i] = string.byte(n, i) 
+		pt[i] = string.byte(p, i) 
+	end
+	crypto_scalarmult(qt, nt, pt)
+	local q = string.char(table.unpack(qt))
+	return q
+end
+
+-- base: the curve point generator = 9
+
+local base = '\9' .. ('\0'):rep(31)
 
 --[[
 
-if sk is the private key, the corresponding public key pk
-is obtained with:
-	crypto_scalarmult_base(pk, sk)
+--- How to use scalarmult to generate curve25519 keypairs
 
-So, to generate a keypair:
-	randombytes(sk, 32)
-	crypto_scalarmult_base(pk, sk)
-	return sk, pk
+For any scalar s (a 32-byte string), the scalar product 's . base' is a point on the elliptic curve. 'base' is a generator.
+	point = scalarmult(s, base)
+
+	If s2 is another scalar, 
+	point2 = scalarmult(s2, point) is also a point on the curve.
+
+Secret keys are random scalars (a 32-byte random string).
+The associated public keys are the corresponding points on the curve
+(also encoded as 32-byte strings):
+   public = scalarmult(secret, base)
+
+let 'ask' and 'bsk' be repectively Alice and Bob private keys 
+(random 32-byte strings)
+
+Alice public key 'apk' is obtained by:
+   apk = scalarmult(ask, base)
+
+Similarly for Bob public key 'bpk':
+   bpk = scalarmult(bsk, base)
+
+--- How to perform an ECDH exchange
+
+When Alice wants to send a message to Bob, they must be able to establish
+a common session key (for a symmetric encryption algorithm).
+
+   Alice and Bob each have the public key of the other party.
+   
+   Alice compute a secret s:
+   s = scalarmult(ask, bpk)
+   
+   Bob is able to compute the same secret s as:
+   s = scalarmult(bsk, apk)
+   
+   This is the same secret since apk = ask . base and bpk = bsk . base
+   thus:  s = ask . bsk . base = bsk . ask . base since the scalar
+   multiplication is commutative
+
+   the secret s is a 32-byte string. It is advised not to use it
+   directly as a session key since the bit dstribution in s is not 
+   completely uniform. So the secret s should be "washed" with 
+   a cryptographic hash function to get a uniformly distributed key.
+   
+   NaCl use the Salsa20 core encryption function to do that (see
+   the hsalsa20() function and the stream_key() function in file
+   box.lua
+   
+   But any other hash function can do. (eg. sha256 or blake2b)
+   
 
 ]]
 
@@ -218,6 +285,12 @@ So, to generate a keypair:
 return {
 	crypto_scalarmult = crypto_scalarmult,
 	crypto_scalarmult_base = crypto_scalarmult_base,
+	--
+	-- convenience function and definition
+	--
+	scalarmult = scalarmult,
+	base = base,
+	--
 }
  -- end of ec25519 module
 

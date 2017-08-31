@@ -9,6 +9,9 @@ test ec25519 module
 
 local ec = require "plc.ec25519"
 
+local bin = require "plc.bin"
+local xts, stx = bin.hextos, bin.stohex
+
 ------------------------------------------------------------
 
 local function verify(x, y)
@@ -59,7 +62,7 @@ local function test_scalarmult_base()
 	assert(verify(q, qexp3))
 end --test_scalarmult
 
-local function test_scalarmult()
+local function test_crypto_scalarmult()
 	local n1 = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 	local n2 = {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2}
 	local q = {}
@@ -70,6 +73,16 @@ local function test_scalarmult()
 	ec.crypto_scalarmult(q, n1, n2)
 	assert(verify(q, qexp))
 end
+
+local function test_scalarmult()
+	local  sk = ('k'):rep(32)
+	local pk = ec.scalarmult(sk, ec.base)
+	assert( pk == xts(
+		"8462fb3f0798f9fe2c39f3823bb41cd3effe70bb5c81735be46a143135c58454"
+	))
+end
+
+
 
 local function test_kexch()
 	local ska = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
