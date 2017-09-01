@@ -277,8 +277,30 @@ a common session key (for a symmetric encryption algorithm).
    box.lua
    
    But any other hash function can do. (eg. sha256 or blake2b)
-   
 
+--- scalarmult implementation notes
+
+- scalars are represented as little endian
+
+- the 3 lower bits of the scalar are ignored (the actual scalar 
+  is contained in bits 3 to 255)
+  so for example, 
+   scalarmult(('\0'):rep(32), base)
+   == scalarmult('\6' .. ('\0'):rep(31), base)
+
+- the bit 254 of the scalar is always set. so:
+   scalarmult(('\0'):rep(32), base)
+   == scalarmult(('\0'):rep(31) .. '\x40', base)
+
+- the group order N is (2^252 + 27742317777372353535851937790883648493)
+  let N8 the 32-byte string containing 8 * N as a little endian 
+  32-byte int. (the hex rep of the 32-byte string is: 
+  689faee7d21893c0b2e6bc17f5cef7a600000000000000000000000000000080 )
+  then,
+     scalarmult(('\0'):rep(32), base) == scalarmult(N8, base)
+  
+  
+  
 ]]
 
 
