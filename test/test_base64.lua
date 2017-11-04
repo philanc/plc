@@ -25,6 +25,14 @@ local function base64test()
 	assert(bd"YWF\nhY  W\t\r\nFhYQ" == "aaaaaaa")
 	assert(bd(be"\x00\x01\x02\x03\x00" ) == "\x00\x01\x02\x03\x00")
 
+	-- 171103 - add a test for the "n*54-1" bug 
+	-- (strings with n*54-1 or n*54-2 bytes)
+	for i = 0, 3 do
+		local ln = 3 * 54 - i
+		local s = ("a"):rep(ln)
+		assert(bd(be(s)) == s)
+	end
+
 end
 
 

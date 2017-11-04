@@ -45,10 +45,12 @@ local function encode(s, filename_safe)
 		if lln > maxlln then st[#st+1] = "\n"; lln = 1 end
 	end
 	-- process remaining bytes and padding
+	local llx = #st  -- index of last st element with data
+	if st[llx] == "\n" then llx = llx - 1 end 
 	if rn == 2 then
-		st[#st] = string.gsub(st[#st], ".$", "=")
+		st[llx] = string.gsub(st[llx], ".$", "=")
 	elseif rn == 1 then
-		st[#st] = string.gsub(st[#st], "..$", "==")
+		st[llx] = string.gsub(st[llx], "..$", "==")
 	end
 	local b = concat(st)
 	if filename_safe then
