@@ -8,9 +8,11 @@
 
 See https://131002.net/siphash/
 
-"SipHash is a family of pseudorandom functions (a.k.a. keyed hash functions) optimized for speed on short messages. 
+"SipHash is a family of pseudorandom functions (a.k.a. keyed hash 
+functions) optimized for speed on short messages. 
 
-Target applications include network traffic authentication and defense against hash-flooding DoS attacks."
+Target applications include network traffic authentication and 
+defense against hash-flooding DoS attacks."
 
 SipHash has been designed in 2012 by Jean-Philippe Aumasson 
 and Daniel J. Bernstein.

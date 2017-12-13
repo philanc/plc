@@ -1,12 +1,21 @@
 ## PLC - Pure Lua Crypto
 
-A small collection of crpytographic functions, and related utilities, implemented  in pure Lua  (version 5.3 or above)
+A small collection of crpytographic functions, and related utilities, 
+implemented  in pure Lua  (version 5.3 or above)
 
 ### Recent changes
 
+December-2017
+
+* Added *SipHash*, a very fast pseudorandom function (or keyed hash) 
+optimized for speed on short messages. It can be used as a MAC and has
+been extensively used as a robust string hash function, as a defense 
+against hash-flooding DoS attacks.
+
 August-2017
 
-* Added *Salsa20* and the NaCl *box() / secret_box()* API, contributed by Pierre Chapuis - https://github.com/catwell
+* Added *Salsa20* and the NaCl *box() / secret_box()* API, contributed 
+by Pierre Chapuis - https://github.com/catwell
 
 June-2017
 
@@ -33,7 +42,7 @@ Collect in one place standalone implementation of well-known, and/or useful,  an
 
 Users should be able to pickup any file and just drop it in their project:
 
-* All the files are written in pure Lua, version 5.3 and above (tested on 5.3.3). Lua 5.3 is required since bit operators and string pack/unpack are extensively used.
+* All the files are written in pure Lua, version 5.3 and above (tested on 5.3.4). Lua 5.3 is required since bit operators and string pack/unpack are extensively used.
 
 * The files should not require any third-party library or C extension beyond the standard Lua 5.3 library. 
 
