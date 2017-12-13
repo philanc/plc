@@ -8,6 +8,7 @@ require "test.test_md5"
 require "test.test_sha2"
 require "test.test_sha3"
 require "test.test_blake2b"
+require "test.test_siphash"
 
 --encryption
 require "test.test_rc4"
