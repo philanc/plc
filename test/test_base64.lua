@@ -1,4 +1,4 @@
--- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
+-- Copyright (c) 2017  Phil Leblanc  -- see LICENSE file
 
 ------------------------------------------------------------
 -- base64 tests
