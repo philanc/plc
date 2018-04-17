@@ -5,6 +5,10 @@ implemented  in pure Lua  (version 5.3 or above)
 
 ### Recent changes
 
+April-2018
+
+* Added *Base85*, including the ZeroMQ variant of Ascii85 encoding.
+
 December-2017
 
 * Added *SipHash*, a very fast pseudorandom function (or keyed hash) 
@@ -96,7 +100,7 @@ Hash
 
 Some (un)related utilities: 
 
-* Base64, Base58  and Hex encoding/decoding
+* Base64, Base58, Base85 (Z85, the ZeroMQ variant of Ascii85)  and Hex encoding/decoding.
 
 ### In the future...
 

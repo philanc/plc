@@ -1,6 +1,7 @@
 require "test.test_bin"
 require "test.test_base64"
 require "test.test_base58"
+require "test.test_base85"
 
 -- checksums, crypto hashes
 require "test.test_checksum"
