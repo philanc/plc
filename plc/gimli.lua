@@ -1,13 +1,14 @@
 -- Copyright (c) 2018  Phil Leblanc  -- see LICENSE file
 
 ------------------------------------------------------------------------
---[[	
-		!!!               WORK IN PROGRESS                 !!!  
-		!!!  Only the permutation is exposed at the moment !!!
+--[[
+	
+!!!               WORK IN PROGRESS                 !!!  
+!!!  Only the permutation is exposed at the moment !!!
 
 Gimli - Authenticated encryption and hash functions 
-		based on the Gimli permutation (Dan Bernstein et al.
-        https://gimli.cr.yp.to/)
+based on the Gimli permutation by Dan Bernstein et al.,
+2017, https://gimli.cr.yp.to/
 
 
 
@@ -17,13 +18,10 @@ Gimli - Authenticated encryption and hash functions
 -- local definitions
 
 local spack, sunpack = string.pack, string.unpack
-local insert, concat = table.insert, table.concat
-
-------------------------------------------------------------------------
-local spack, sunpack = string.pack, string.unpack
 local byte, char = string.byte, string.char
 local insert, concat = table.insert, table.concat
 
+-- display the permutation state (an array of 12 32-byte integers)
 --~ local function px12(st) 
 --~ 	local fmt = "%08x %08x %08x %08x \n"
 --~ 		.. "%08x %08x %08x %08x \n"
