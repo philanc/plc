@@ -22,6 +22,9 @@ require "test.test_aead_chacha_poly"
 require "test.test_norx"
 require "test.test_norx32"
 
+-- gimli-based functions
+require "test.test_gimli"
+
 -- pk / EC scalar mult for DH key exchange
 require "test.test_ec25519"
 

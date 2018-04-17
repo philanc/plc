@@ -7,6 +7,8 @@ implemented  in pure Lua  (version 5.3 or above)
 
 April-2018
 
+* Adding *Gimli*, cryptographic functions based on the Gimli permutation (Dan Bernstein et al., 2017, https://gimli.cr.yp.to/). *Work in progress - at the moment, only the core permutation has been implemented*
+
 * Added *Base85*, including the ZeroMQ variant of Ascii85 encoding.
 
 December-2017
