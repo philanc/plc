@@ -9,18 +9,15 @@
 The Gimli permutation by Dan Bernstein et al. (2017)
 - see Gimli links and authors list at https://gimli.cr.yp.to/
 
-The encryption and hash functions should be based on a sponge 
-construction over the Gimli permutation
+Note: The performance of this Lua implementation has been disappointing:
 
-The performance of this Lua implementation has been disappointing.
+   To encrypt a 10 Mbyte string, with a 16-byte block, the number of 
+   permutations is approximately 10 * 1024 * 1024 / 16. 
 
-With a 16-byte block, the number of permutations is approximately 
-10 * 1024 * 1024 / 16 to encrypt a 10 Mbyte string. 
-
-On an average laptop - Linux 4.4 x86_64, Lua 5.3.4,  CPU i5 M430 @ 2.27 GHz,
-the elapsed time for these permutations is:
-  -- gimli_core32:       42-43s   -- direct imlpementation of the algorithm
-  -- gimli_core32opt:    20-21s   -- Lua-optimized version
+   On an average laptop - CPU i5 M430 @ 2.27 GHz, Linux 4.4 x86_64, 
+   Lua 5.3.4, the elapsed time for these permutations is:
+   -- gimli_core32:       42-43s   -- direct implementation
+   -- gimli_core32opt:    20-21s   -- Lua-optimized version
 
 The times for complete encryption would be higher. Which makes a
 pure Lua gimli-based encryption not competitive with established 
