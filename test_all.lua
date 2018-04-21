@@ -21,6 +21,7 @@ require "test.test_poly1305"
 require "test.test_aead_chacha_poly"
 require "test.test_norx"
 require "test.test_norx32"
+require "test.test_morus"
 
 -- gimli-based functions
 require "test.test_gimli"

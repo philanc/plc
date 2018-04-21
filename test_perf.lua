@@ -34,7 +34,7 @@ local blake2b = require "plc.blake2b"
 local norx = require "plc.norx"
 local norx32 = require "plc.norx32"
 local md5 = require "plc.md5"
-
+local morus = require "plc.morus"
 
 local base64 = require "plc.base64"
 local base58 = require "plc.base58"
@@ -288,6 +288,28 @@ end	--perf_norx32
 
 ------------------------------------------------------------
 
+local function perf_morus()
+	local k = ('k'):rep(16)  -- key
+	local n = ('n'):rep(16)  -- nonce
+	local a = ('a'):rep(16)  -- ad  (61 61 ...)
+	local sizemb = 100 
+	local m = ('m'):rep(sizemb * 1024 * 1024)
+	print("Text size (in MBytes):", sizemb)
+	print("Times:  elapsed (wall) and CPU (clock) in seconds")
+	for j = 1, 3 do
+		start("morus encrypt")
+		local c = morus.aead_encrypt(k, n, m)
+		done()
+		start("morus decrypt")
+		local p = morus.aead_decrypt(k, n, c)
+		assert(p == m)
+		done()
+	end
+	--
+end	--perf_morus
+
+------------------------------------------------------------
+
 local function perf_md5()
 	local m = plain
 	print("Text size (in MBytes):", sizemb)
@@ -305,7 +327,7 @@ end	--perf_md5
 
 ------------------------------------------------------------
 --~ perf_encrypt()
-perf_encrypt20()
+--~ perf_encrypt20()
 --~ perf_xor()
 --~ perf_sha2_sha3()
 --~ perf_misc()
@@ -314,6 +336,7 @@ perf_encrypt20()
 --~ perf_norx()
 --~ perf_norx32()
 --~ perf_md5()
+perf_morus()
 
 --[[
 
@@ -346,7 +369,7 @@ Times:  elapsed (os.time) and CPU (os.clock) in seconds
 
 ---
 
-tests run on a laptop - Linux 3.10 x86_64 CPU i5 M430 @ 2.27 GHz
+tests run on a laptop - Linux 4.4 x86_64 CPU i5 M430 @ 2.27 GHz
 (Lua 5.3.3 64 bits)
 
 - blake2b-512               9      9.19
@@ -363,7 +386,8 @@ tests run on a laptop - Linux 3.10 x86_64 CPU i5 M430 @ 2.27 GHz
 - norx decrypt 10mb (4k messages)       4      4.13
 - norx32 encrypt            8      8.56
 - norx32 decrypt            8      7.84
-
+- morus encrypt (100mb)    16     15.96    !! 1.6s for 10MB !!
+- morus decrypt (100mb)    15     14.79
 ---
 
 tests on desktop HP (windows 7 64bit SP1, cpu intel core i5-3470 3.20ghz

@@ -6,10 +6,17 @@
 !!!               WORK IN PROGRESS                 !!!  
 !!!  Only the permutation is exposed at the moment !!!
 
-Gimli - Authenticated encryption and hash functions 
-based on the Gimli permutation by Dan Bernstein et al.,
-2017, https://gimli.cr.yp.to/
+Gimli - Authenticated encryption and hash based on a sponge construction over the Gimli permutation by Dan Bernstein et al. (2017)
+- see Gimli links and authors list at https://gimli.cr.yp.to/
 
+The encryption and hash functions should be the same as the gimli functions 
+in the luazen C crypto library - https://github.com/philanc/luazen
+	gimli_encrypt, gimli_decrypt and gimli_hash
+
+Encryption: 
+32-byte keys (256 bits) and 16-byte nonces (128 bits)
+
+Hash: 
 
 
 ]]
@@ -31,6 +38,9 @@ local insert, concat = table.insert, table.concat
 --~ 		st[5], st[6], st[7], st[8],
 --~ 		st[9], st[10], st[11], st[12]))
 --~ end
+
+------------------------------------------------------------------------
+-- the gimli core permutation
 
 local function rotate(x, n) 
     return ((x << n) | (x >> (32-n))) & 0xffffffff
@@ -75,15 +85,52 @@ local function gimli_core32(st)
 	end--for rounds
 
 end--gimli_core32()
+------------------------------------------------------------------------
 
 local st = {}  -- reuse the gimli state table
 
+-- sponge construction over Gimli
+-- Rate=16, Capacity=32. currently encryption is in overwrite mode, 
+-- ie. input replaces R instead of XOR)
+
+
+local function gimli_encrypt(k, n, m, prefix)
+	-- encrypt string m, return a string c = prefix .. mac .. e
+	-- where e is the encrypted message, mac is a 16-byte 
+	-- authentication tag, and prefix is an optional string 
+	-- (defaults to "") prepended to the result. 
+	-- So #c == #prefix + 16 + #m
+	-- k is the key as a 32-byte string
+	-- n is the nonce as a 16-byte string
+	
+	--
+end
+
+local function gimli_decrypt(k, n, c, prefixln)
+	-- decrypt string c
+	-- return the decrypted string m or (nil, error msg) in case
+	-- of error or if the MAC doesn't match
+	-- prefixln is the optional length of a prefix (defaults to 0)
+	-- #m = #c -16 - prefixln
+	--
+	--
+end
+
+local function gimli_hash(s, hashsize)
+	-- return the hash of string s as a binary string
+	-- hashsize is the optional size of the required hash 
+	-- in bytes. hashsize defaults to 16
+end
+
 ------------------------------------------------------------------------
 -- the gimli module
-
 return {
 	-- the core permutation is exposed to facilitate tests and allow 
 	-- arbitrary constructions by module user.
 	gimli_core32 = gimli_core32,
-	
+	--
+	gimli_encrypt = gimli_encrypt,
+	gimli_decrypt = gimli_decrypt,
+	gimli_hash = gimli_hash,
+	--
 }

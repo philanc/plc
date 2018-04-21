@@ -7,7 +7,9 @@ implemented  in pure Lua  (version 5.3 or above)
 
 April-2018
 
-* Adding *Gimli*, cryptographic functions based on the Gimli permutation (Dan Bernstein et al., 2017, https://gimli.cr.yp.to/). *Work in progress - at the moment, only the core permutation has been implemented*
+* Added *Morus*, a finalist (round 4) in the CAESAR competition for authenticated encryption.
+
+* Adding *Gimli*, cryptographic functions based on the Gimli permutation (Dan Bernstein et al., 2017, https://gimli.cr.yp.to/). *Work in progress - at the moment, only the core permutation has been implemented.*
 
 * Added *Base85*, including the ZeroMQ variant of Ascii85 encoding.
 
@@ -26,21 +28,6 @@ by Pierre Chapuis - https://github.com/catwell
 June-2017
 
 * Added *MD5*.
-
-May-2017
-
-* Added *NORX*, a *very* fast authenticated encryption algorithm.
-
-* Added *Blake2b*, a strong cryptographic hash.
-
-Oct-2015
-
-* Added *Rabbit*, a fast stream encryption algorithm.
-
-* Added *XTea*, a very simple block encryption algorithm.
-
-* Added some crude performance tests (see file 'test_perf.lua')
-
 
 ### Objective
 
@@ -70,6 +57,8 @@ What this collection is *not*:
 ### Functions
 
 Encryption
+
+* Morus, an *amazingly* fast (see performance below) authenticated encryption algorithm with associated data (AEAD). Morus is a finalist (round 4) in the [CAESAR](http://competitions.cr.yp.to/caesar-submissions.html) competition - see http://www3.ntu.edu.sg/home/wuhj/research/caesar/caesar.html
 
 * NORX, a *very* fast authenticated encryption algorithm with associated data (AEAD). NORX is a 3rd-round candidate to [CAESAR](http://competitions.cr.yp.to/caesar.html). This Lua code implements the default NORX 64-4-1 variant (state is 16 64-bit words, four rounds, no parallel execution, key and nonce are 256 bits) - see https://norx.io/
 
@@ -127,6 +116,7 @@ Plain text size: 10 MBytes. Elapsed time in seconds
 
 Encryption
 
+	- morus                     1.7
 	- norx                      4
 	- norx32                    8   
 
