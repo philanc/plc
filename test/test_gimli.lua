@@ -24,11 +24,27 @@ st = {} -- permutation state (12 32-byte integers)
 -- initialize the state 
 -- see gimli-20170627/test.c in the reference implementation 
 -- at https://gimli.cr.yp.to/
+
+-- test the initial implementation
 for i = 0, 11 do 
 	st[i+1] = (i * i * i + i * 0x9e3779b9) & 0xffffffff 
 end
 --~ px12(st)
 gim.gimli_core32(st)
+--~ px12(st)
+local expected = {
+	0xba11c85a, 0x91bad119, 0x380ce880, 0xd24c2c68, 
+	0x3eceffea, 0x277a921c, 0x4f73a0bd, 0xda5a9cd8, 
+	0x84b673f0, 0x34e52ff7, 0x9e2bef49, 0xf41bb8d6
+}
+for i = 1, 12 do assert(st[i] == expected[i]) end 
+
+-- test the optimized implementation
+for i = 0, 11 do 
+	st[i+1] = (i * i * i + i * 0x9e3779b9) & 0xffffffff 
+end
+--~ px12(st)
+gim.gimli_core32opt(st)
 --~ px12(st)
 local expected = {
 	0xba11c85a, 0x91bad119, 0x380ce880, 0xd24c2c68, 
