@@ -15,7 +15,12 @@ http://www3.ntu.edu.sg/home/wuhj/research/caesar/caesar.html
 Morus is a finalist (round 4) in the CAESAR competition
 http://competitions.cr.yp.to/caesar-submissions.html
    
-   
+---
+
+NOTE: I have added an experimental hash / XOF function based on the 
+Morus permutation. It is NOT part of the Morus submission and has NOT 
+been analyzed / reviewed. The design is certainly not final.  
+=> DON'T USE THE HASH FUNCTION for any serious purpose.
 
 ]]
 
@@ -251,19 +256,21 @@ local function dec_aut_step(s, c0, c1, c2, c3, blen)
 	state_update(s, m0, m1, m2, m3)
 	return spack("<I8I8I8I8", m0, m1, m2, m3)
 end
+
+-- state init constants (fibonacci)
+-- u8 con[32] = {
+--	0x00,0x01,0x01,0x02,0x03,0x05,0x08,0x0d
+--	,0x15,0x22,0x37,0x59,0x90,0xe9,0x79,0x62
+--	,0xdb,0x3d,0x18,0x55,0x6d,0xc2,0x2f,0xf1
+--	,0x20,0x11,0x31,0x42,0x73,0xb5,0x28,0xdd
+local con = { -- con as 4 uint64 -  !! assume little endian !!
+		0xd08050302010100, 0x6279e99059372215, 
+	    0xf12fc26d55183ddb, 0xdd28b57342311120 }
 	
 local function state_init(key, iv)
 	-- return an initialized state array
 	assert((#key == 16) or (#key == 32), "key must be 16 or 32 bytes")
 	assert(#iv == 16, "iv must be 16 bytes")
-	-- u8 con[32] = {
-	--	0x00,0x01,0x01,0x02,0x03,0x05,0x08,0x0d
-	--	,0x15,0x22,0x37,0x59,0x90,0xe9,0x79,0x62
-	--	,0xdb,0x3d,0x18,0x55,0x6d,0xc2,0x2f,0xf1
-	--	,0x20,0x11,0x31,0x42,0x73,0xb5,0x28,0xdd
-	local con = { -- con as 4 uint64 -  !! assume little endian !!
-		0xd08050302010100, 0x6279e99059372215, 
-	    0xf12fc26d55183ddb, 0xdd28b57342311120 }
 	local ek0, ek1, ek2, ek3 
 	if #key == 16 then 
 		ek0, ek1 = sunpack("<I8I8", key)
@@ -434,6 +441,77 @@ local function aead_decrypt(k, iv, e, adlen)
 	return table.concat(ct) 
 end--aead_decrypt()
 
+
+local function morus_hash(m, diglen, key)
+	-- !! experimental !! 
+	-- a keyed hash/xof function based on morus permutation
+	-- m is the message to hash
+	-- diglen is the optional length of the digest in bytes (defaults to 32)
+	-- key is an optional string that is mixed to the initial hash state.
+	-- key can be any length. if longer than 32 bytes, only the first 32
+	-- bytes are used.
+	--
+	diglen = diglen or 32 
+	local ek0, ek1, ek2, ek3 = 0, 0, 0, 0
+	if key then 
+		assert(type(key) == "string")
+		if #key < 32 then
+			key = key .. ('\0'):rep(32 - #key)
+		end
+		-- (ignore key bytes beyond 32)
+		ek0, ek1, ek2, ek3 = sunpack("<I8I8I8I8", key)
+	end
+	local mlen = #m
+	local m0, m1, m2, m3
+	local blk, blen
+	--
+	--initaialize state s:
+	local s = {
+		diglen, 0, 0, 0,                -- state[0][]
+		ek0, ek1, ek2, ek3,             -- state[1][]
+		-1, -1, -1, -1,                 -- state[2][]  (0xff * 32)
+		0, 0, 0, 0,                     -- state[3][]
+		con[1], con[2], con[3], con[4], -- state[4][]
+	}
+	for i = 1, 16 do state_update(s, 0, 0, 0, 0) end	
+	--
+	-- absorb m
+	local i = 1
+	while i <= mlen - 31 do --process full blocks
+		m0, m1, m2, m3 = sunpack("<I8I8I8I8", ad, i)
+		i = i + 32
+		enc_aut_step(s, m0, m1, m2, m3)
+	end
+	--
+	-- absorb last, partial block of m, pad as needed
+	if mlen - i < 30 then 
+		blk = m:sub(i) .. '\x01' .. ('\0'):rep(29 - (mlen - i)) .. '\x80'
+		assert(#blk == 32, #blk)
+	else -- mlen-i == 30 -- only one byte of padding
+		blk = m:sub(i) .. '\x81'
+	end
+	m0, m1, m2, m3 = sunpack("<I8I8I8I8", blk)
+	enc_aut_step(s, m0, m1, m2, m3)
+	-- mix the state
+	for i = 1, 16 do state_update(s, 0, 0, 0, 0) end
+	--
+	-- squeeze digest
+	local digt = {} -- used to collect digest blocks
+	local n = 0
+	repeat
+		state_update(s, 0, 0, 0, 0)
+		blk = spack("<I8I8I8I8", s[1],s[2],s[3],s[4])
+		n = n + 32
+		if n > diglen then
+			blk = blk:sub(1, diglen - (n - 32))
+			n = diglen
+		end
+		insert(digt, blk)
+	until n >= diglen
+	local dig = concat(digt)
+	assert(#dig == diglen)
+	return dig
+end--morus_hash()
 	
 
 ------------------------------------------------------------------------
@@ -446,6 +524,8 @@ return {
 	aead_decrypt = aead_decrypt,
 	encrypt = aead_encrypt, --alias
 	decrypt = aead_decrypt, --alias
+	--
+	hash = morus_hash,  -- !! experimental !!
 	
 }
 
