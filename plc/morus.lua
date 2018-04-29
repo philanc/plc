@@ -442,11 +442,12 @@ local function aead_decrypt(k, iv, e, adlen)
 end--aead_decrypt()
 
 
-local function morus_hash(m, diglen, key)
+local function x_hash(m, diglen, key)
 	-- !! experimental !! 
-	-- a keyed hash/xof function based on morus permutation
+	-- a keyed hash/xof function based on morus encryption
 	-- m is the message to hash
-	-- diglen is the optional length of the digest in bytes (defaults to 32)
+	-- diglen is the optional length of the digest in bytes (defaults 
+	-- to 32 - can be any number > 1)
 	-- key is an optional string that is mixed to the initial hash state.
 	-- key can be any length. if longer than 32 bytes, only the first 32
 	-- bytes are used.
@@ -476,14 +477,21 @@ local function morus_hash(m, diglen, key)
 	for i = 1, 16 do state_update(s, 0, 0, 0, 0) end	
 	--
 	-- absorb m
+	-- (same as AD absorb in morus encryption - ie. a bit more 
+	-- complex than just xoring message block with the first 'rate'
+	-- bytes in state)
 	local i = 1
 	while i <= mlen - 31 do --process full blocks
-		m0, m1, m2, m3 = sunpack("<I8I8I8I8", ad, i)
+		m0, m1, m2, m3 = sunpack("<I8I8I8I8", m, i)
 		i = i + 32
 		enc_aut_step(s, m0, m1, m2, m3)
 	end
 	--
 	-- absorb last, partial block of m, pad as needed
+	-- (minimal padding - same as original keccak: "01 0* 1"; 
+	-- no domain constant before the first 01 bits) 
+	-- => padding for last block is:   b | 01 | 00 00 ... | 80
+	--              or, if #b == 31:   b | 81
 	if mlen - i < 30 then 
 		blk = m:sub(i) .. '\x01' .. ('\0'):rep(29 - (mlen - i)) .. '\x80'
 		assert(#blk == 32, #blk)
@@ -492,7 +500,8 @@ local function morus_hash(m, diglen, key)
 	end
 	m0, m1, m2, m3 = sunpack("<I8I8I8I8", blk)
 	enc_aut_step(s, m0, m1, m2, m3)
-	-- mix the state
+	--
+	-- mix the state before squeezing (mostly useful for short messages)
 	for i = 1, 16 do state_update(s, 0, 0, 0, 0) end
 	--
 	-- squeeze digest
@@ -500,6 +509,7 @@ local function morus_hash(m, diglen, key)
 	local n = 0
 	repeat
 		state_update(s, 0, 0, 0, 0)
+		-- collect 32 (rate) bytes at each turn
 		blk = spack("<I8I8I8I8", s[1],s[2],s[3],s[4])
 		n = n + 32
 		if n > diglen then
@@ -511,7 +521,7 @@ local function morus_hash(m, diglen, key)
 	local dig = concat(digt)
 	assert(#dig == diglen)
 	return dig
-end--morus_hash()
+end--x_hash()
 	
 
 ------------------------------------------------------------------------
@@ -525,7 +535,7 @@ return {
 	encrypt = aead_encrypt, --alias
 	decrypt = aead_decrypt, --alias
 	--
-	hash = morus_hash,  -- !! experimental !!
+	hash = x_hash,  -- !! experimental !!
 	
 }
 
