@@ -463,10 +463,10 @@ local function x_hash(m, diglen, key)
 		ek0, ek1, ek2, ek3 = sunpack("<I8I8I8I8", key)
 	end
 	local mlen = #m
-	local m0, m1, m2, m3
+	local m0, m1, m2, m3, m4
 	local blk, blen
 	--
-	--initaialize state s:
+	--initialize state s:
 	local s = {
 		diglen, 0, 0, 0,                -- state[0][]
 		ek0, ek1, ek2, ek3,             -- state[1][]
@@ -477,14 +477,11 @@ local function x_hash(m, diglen, key)
 	for i = 1, 16 do state_update(s, 0, 0, 0, 0) end	
 	--
 	-- absorb m
-	-- (same as AD absorb in morus encryption - ie. a bit more 
-	-- complex than just xoring message block with the first 'rate'
-	-- bytes in state)
 	local i = 1
-	while i <= mlen - 31 do --process full blocks
+	while i <= mlen - 31 do --absorb full blocks
 		m0, m1, m2, m3 = sunpack("<I8I8I8I8", m, i)
 		i = i + 32
-		enc_aut_step(s, m0, m1, m2, m3)
+		state_update(s,  m0, m1, m2, m3)
 	end
 	--
 	-- absorb last, partial block of m, pad as needed
@@ -499,7 +496,7 @@ local function x_hash(m, diglen, key)
 		blk = m:sub(i) .. '\x81'
 	end
 	m0, m1, m2, m3 = sunpack("<I8I8I8I8", blk)
-	enc_aut_step(s, m0, m1, m2, m3)
+	state_update(s,  m0, m1, m2, m3)
 	--
 	-- mix the state before squeezing (mostly useful for short messages)
 	for i = 1, 16 do state_update(s, 0, 0, 0, 0) end
