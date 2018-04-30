@@ -304,6 +304,10 @@ local function perf_morus()
 		local p = morus.aead_decrypt(k, n, c)
 		assert(p == m)
 		done()
+		start("morus-based hash (experimental)")
+		local c = morus.hash(m)
+		done()
+
 	end
 	--
 end	--perf_morus
@@ -388,8 +392,11 @@ tests run on a laptop - Linux 4.4 x86_64 CPU i5 M430 @ 2.27 GHz
 - norx32 decrypt            8      7.84
 - morus encrypt (100mb)    16     15.96    !! 1.6s for 10MB !!
 - morus decrypt (100mb)    15     14.79
----
 
+- x_hash (morus) (100mb)   10     10.06  !! 1.0s for 10MB !!
+
+
+---
 tests on desktop HP (windows 7 64bit SP1, cpu intel core i5-3470 3.20ghz
 (Lua 5.3.3 32 bits, windows)
 
@@ -424,4 +431,5 @@ tests on desktop HP (windows 7 64bit SP1, cpu intel core i5-3470 3.20ghz
 - crc-32                    3      2.37
 - crc-32 (no table)         8      8.21
 - poly1305 hmac             1      1.56
+
 ]]
