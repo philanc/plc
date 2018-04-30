@@ -323,7 +323,7 @@ local function tag_compute(s, mlen, adlen)
 	return s[1], s[2] -- tag is state[0][0]..state[0][1]
 end-- tag_compute
 
-local function aead_encrypt(k, iv, m, ad)
+local function encrypt(k, iv, m, ad)
 	-- k is the encryption key (16 or 32-byte string)
 	-- iv is the nonce or initial value (16-byte string)
 	-- m is the message to encrypt (variable length string)
@@ -379,10 +379,10 @@ local function aead_encrypt(k, iv, m, ad)
 	insert(ct, spack("<I8I8", tag0, tag1))
 	-- return the complete encrypted message (with ad prefix and tag suffix)
 	return table.concat(ct) 
-end--aead_encrypt()
+end--encrypt()
 
 
-local function aead_decrypt(k, iv, e, adlen)
+local function decrypt(k, iv, e, adlen)
 	-- k is the encryption key (16-byte string)
 	-- iv is the nonce or initial value (16-byte string)
 	-- e is the encrypted message
@@ -439,7 +439,7 @@ local function aead_decrypt(k, iv, e, adlen)
 	end
 	-- return the decrypted message 
 	return table.concat(ct) 
-end--aead_decrypt()
+end--decrypt()
 
 
 local function x_hash(m, diglen, key)
@@ -453,32 +453,19 @@ local function x_hash(m, diglen, key)
 	-- bytes are used.
 	--
 	diglen = diglen or 32 
-	local ek0, ek1, ek2, ek3 = 0, 0, 0, 0
-	if key then 
-		assert(type(key) == "string")
-		if #key < 32 then
-			key = key .. ('\0'):rep(32 - #key)
-		end
-		-- (ignore key bytes beyond 32)
-		ek0, ek1, ek2, ek3 = sunpack("<I8I8I8I8", key)
-	end
+	key = key or ""
+	key = key .. ('\0'):rep(32 - #key)
 	local mlen = #m
-	local m0, m1, m2, m3, m4
+	local m0, m1, m2, m3
 	local blk, blen
 	--
 	--initialize state s:
-	local s = {
-		diglen, 0, 0, 0,                -- state[0][]
-		ek0, ek1, ek2, ek3,             -- state[1][]
-		-1, -1, -1, -1,                 -- state[2][]  (0xff * 32)
-		0, 0, 0, 0,                     -- state[3][]
-		con[1], con[2], con[3], con[4], -- state[4][]
-	}
-	for i = 1, 16 do state_update(s, 0, 0, 0, 0) end	
+	local iv = spack("<I8I8", diglen, 0)
+	local s = state_init(key, iv)
 	--
 	-- absorb m
 	local i = 1
-	while i <= mlen - 31 do --absorb full blocks
+	while i <= mlen - 31 do --process full blocks
 		m0, m1, m2, m3 = sunpack("<I8I8I8I8", m, i)
 		i = i + 32
 		state_update(s,  m0, m1, m2, m3)
@@ -505,9 +492,9 @@ local function x_hash(m, diglen, key)
 	local digt = {} -- used to collect digest blocks
 	local n = 0
 	repeat
+		blk = spack("<I8I8I8I8", s[1],s[2],s[3],s[4])
 		state_update(s, 0, 0, 0, 0)
 		-- collect 32 (rate) bytes at each turn
-		blk = spack("<I8I8I8I8", s[1],s[2],s[3],s[4])
 		n = n + 32
 		if n > diglen then
 			blk = blk:sub(1, diglen - (n - 32))
@@ -527,10 +514,8 @@ return {
 	-- the core permutation is exposed to facilitate tests 
 	state_update = state_update,
 	--
-	aead_encrypt = aead_encrypt,
-	aead_decrypt = aead_decrypt,
-	encrypt = aead_encrypt, --alias
-	decrypt = aead_decrypt, --alias
+	encrypt = encrypt,
+	decrypt = decrypt,
 	--
 	hash = x_hash,  -- !! experimental !!
 	
