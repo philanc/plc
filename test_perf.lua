@@ -298,10 +298,10 @@ local function perf_morus()
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
 	for j = 1, 3 do
 		start("morus encrypt")
-		local c = morus.aead_encrypt(k, n, m)
+		local c = morus.encrypt(k, n, m)
 		done()
 		start("morus decrypt")
-		local p = morus.aead_decrypt(k, n, c)
+		local p = morus.decrypt(k, n, c)
 		assert(p == m)
 		done()
 		start("morus-based hash (experimental)")
@@ -394,6 +394,11 @@ tests run on a laptop - Linux 4.4 x86_64 CPU i5 M430 @ 2.27 GHz
 - morus decrypt (100mb)    15     14.79
 
 - x_hash (morus) (100mb)   10     10.06  !! 1.0s for 10MB !!
+
+--- morus with lua 5.4.0-work1 64 bits, same laptop
+- morus encrypt (100mb)           12.29    !! 1.2s for 10MB !!
+- morus decrypt (100mb)           11.09
+- morus hash    (100mb)            7.43    !! 0.75s for 10MB !!
 
 
 ---
