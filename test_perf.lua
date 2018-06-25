@@ -398,7 +398,12 @@ tests run on a laptop - Linux 4.4 x86_64 CPU i5 M430 @ 2.27 GHz
 --- morus with lua 5.4.0-work1 64 bits, same laptop
 - morus encrypt (100mb)           12.29    !! 1.2s for 10MB !!
 - morus decrypt (100mb)           11.09
-- morus hash    (100mb)            7.43    !! 0.75s for 10MB !!
+- x_hash        (100mb)            7.43    !! 0.75s for 10MB !!
+
+--- morus with lua 5.4.0-work2 64 bits, same laptop
+- morus encrypt (100mb)           12.33   ~1x vs work1
+- morus decrypt (100mb)           11.41   0.97x
+- x_hash        (100mb)            7.88   0.94x
 
 
 ---
