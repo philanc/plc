@@ -443,7 +443,10 @@ end--decrypt()
 
 
 local function x_hash(m, diglen, key)
-	-- !! experimental !! 
+	--
+	-- !! EXPERIMENTAL - NOT DESIGNED BY THE MORUS AUTHORS !! 
+	-- !! => DON'T USE IT FOR ANYTHING !! 
+	--
 	-- a keyed hash/xof function based on morus encryption
 	-- m is the message to hash
 	-- diglen is the optional length of the digest in bytes (defaults 
@@ -516,6 +519,10 @@ return {
 	--
 	encrypt = encrypt,
 	decrypt = decrypt,
+	--
+	key_size = 32,
+	nonce_size = 16,
+	variant = "Morus-1280",
 	--
 	hash = x_hash,  -- !! experimental !!
 	
