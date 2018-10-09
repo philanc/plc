@@ -5,7 +5,11 @@ implemented  in pure Lua  (version 5.3 or above)
 
 ### Recent changes
 
-April-2018
+October 2018
+
+* Added SHA2-512 and optimized SHA2-256. Borrowed the core permutation code from the very nice pure_lua_SHA2 project by Egor Skriptunoff - https://github.com/Egor-Skriptunoff/pure_lua_SHA2
+
+April 2018
 
 * Added *Morus*, a finalist (round 4) in the CAESAR competition for authenticated encryption.
 
@@ -13,19 +17,19 @@ April-2018
 
 * Added *Base85*, including the ZeroMQ variant of Ascii85 encoding.
 
-December-2017
+December 2017
 
 * Added *SipHash*, a very fast pseudorandom function (or keyed hash) 
 optimized for speed on short messages. It can be used as a MAC and has
 been extensively used as a robust string hash function, as a defense 
 against hash-flooding DoS attacks.
 
-August-2017
+August 2017
 
 * Added *Salsa20* and the NaCl *box() / secret_box()* API, contributed 
 by Pierre Chapuis - https://github.com/catwell
 
-June-2017
+June 2017
 
 * Added *MD5*.
 
@@ -81,7 +85,7 @@ Hash
 
 * Blake2b - Blake was a final round candidate in the NIST SHA-3 selection process.  Blake2b is an improved version of Blake. See https://blake2.net/. It has been specified in [RFC 7693](https://tools.ietf.org/html/rfc7693)
 
-* SHA2 cryptographic hash family (only sha256 for the moment)
+* SHA2 cryptographic hash family (sha256 and sha512)
 
 * SHA3 cryptographic hash family (formerly known as Keccak - 256-bit and 512-bit versions)
 
@@ -98,8 +102,6 @@ Some (un)related utilities:
 Implementations that may come some day:
 
 * XChacha20 (ie. Chacha20 with a 24-byte nonce)
-
-* SHA2-512
 
 * better documentation in each file :-)
 
@@ -130,7 +132,7 @@ Encryption
 Hash
 	- blake2b-512               9
 	
-	- sha2-256                 17
+	- sha2-256                 10 
 	- sha3-256                 23
 	- sha3-512                 43
 	- md5                       4
@@ -154,6 +156,8 @@ The implementations should pass the tests, but beyond that, there is no guarante
 All the files included here are distributed under the MIT License (see file LICENSE)
 
 The salsa20 and box/secretbox implementations are contributed by Pierre Chapuis - https://github.com/catwell
+
+The sha2-256 and sha2-512 core permutation has been borrowed from Egor Skriptunoff's pure_lua_SHA2 project - https://github.com/Egor-Skriptunoff/pure_lua_SHA2
 
 
 
