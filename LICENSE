@@ -1,4 +1,5 @@
-Copyright (c) 2017 Phil Leblanc
+Copyright (c) 2018 Phil Leblanc
+Copyright (c) 2017  Pierre Chapuis (files salsa20.lua, test_salsa20, box.lua, test_box.lua)
 
 Permission is hereby granted, free of charge, to any person 
 obtaining a copy of this software and associated documentation 
@@ -18,11 +19,4 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-------------------------------------------------------------------------
-Files salsa20.lua, test_salsa20, box.lua and test_box.lua are contributed 
-by Pierre Chapuis - https://github.com/catwell.
-They are distributed under the same terms but with the following Copyright:
-   Copyright (c) 2017  Pierre Chapuis
-
 
