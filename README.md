@@ -107,7 +107,7 @@ Some (un)related utilities:
 
 Implementations that may come some day:
 
-* XChacha20_Poly1305_AEAD 
+* Ed25519 signature 
 
 * better documentation in each file :-)
 
