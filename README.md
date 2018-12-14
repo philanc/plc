@@ -5,6 +5,10 @@ implemented  in pure Lua  (version 5.3 or above)
 
 ### Recent changes
 
+December 2018
+
+* Added XChaCha20 encryption (in plc/chacha20.lua)
+
 October 2018
 
 * Added SHA2-512 and optimized SHA2-256. Borrowed the core permutation code from the very nice pure_lua_SHA2 project by Egor Skriptunoff - https://github.com/Egor-Skriptunoff/pure_lua_SHA2
@@ -70,7 +74,7 @@ Encryption
 
 * Rabbit, a fast stream cipher, selected in the eSTREAM portfolio along with Salsa20, and defined in [RFC 4503](https://tools.ietf.org/html/rfc4503) (128-bit key, 64-bit IV - see more information and links in rabbit.lua)
 
-* Chacha20, Poly1305 and authenticated stream encryption, as defined in [RFC 7539](https://tools.ietf.org/html/rfc7539)
+* Chacha20, Poly1305 and authenticated stream encryption, as defined in [RFC 7539](https://tools.ietf.org/html/rfc7539), and XChacha20 stream encryption (Chacha20 with a 24-byte nonce)
 
 * Salsa20, a fast encryption algorithm and the NaCl secretbox() API for authenticated encryption (with Salsa20 and Poly1305 - see box.lua)
 Salsa20, Poly1305 and the NaCl library have been designed by Dan Bernstein, Tanja Lange et al.  http://nacl.cr.yp.to/.
@@ -89,6 +93,8 @@ Hash
 
 * SHA3 cryptographic hash family (formerly known as Keccak - 256-bit and 512-bit versions)
 
+* SipHash, a keyed hash function family optimized for speed on short messages, by Jean-Philippe Aumasson and Dan Bernstein. The variant implemented here is the default SipHash-2-4.
+
 * MD5, as specified in [RFC 1321](https://tools.ietf.org/html/rfc1321)
 
 * Non-cryptographic checksums (CRC-32, Adler-32), ...
@@ -101,7 +107,7 @@ Some (un)related utilities:
 
 Implementations that may come some day:
 
-* XChacha20 (ie. Chacha20 with a 24-byte nonce)
+* XChacha20_Poly1305_AEAD 
 
 * better documentation in each file :-)
 
