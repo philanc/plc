@@ -240,6 +240,6 @@ local function keccak512Bin(data) return keccakHash(576, 512, data) end
 
 --return module
 return {
-	hash256 = keccak256Bin,
-	hash512 = keccak512Bin,
+	sha256 = keccak256Bin,
+	sha512 = keccak512Bin,
 }

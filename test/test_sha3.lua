@@ -13,20 +13,20 @@ local function test_sha3()
 	-- https://emn178.github.io/online-tools/sha3_512.html
 	-- and with Python's hashlib.sha3, thanks to Michael Rosenberg
 	-- (https://github.com/doomrobo)
-	assert(sha3.hash512("") == bin.hextos[[
+	assert(sha3.sha512("") == bin.hextos[[
 		a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a6
 		15b2123af1f5f94c11e3e9402c3ac558f500199d95b6d3e301758586281dcd26 ]])
-	assert(sha3.hash512("abc") == bin.hextos[[
+	assert(sha3.sha512("abc") == bin.hextos[[
 		b751850b1a57168a5693cd924b6b096e08f621827444f70d884f5d0240d2712e
 		10e116e9192af3c91a7ec57647e3934057340b4cf408d5a56592f8274eec53f0 ]])
-	assert(sha3.hash512(('1'):rep(128)) == bin.hextos[[
+	assert(sha3.sha512(('1'):rep(128)) == bin.hextos[[
 		1e996f94a2c54cacd0fb3a778a3605e34c928bb9f51ffed970f05919dabf2fa3
 		fe12d5eafcb8457169846c67b5e30ede9b22c4c59ace3c11663965e4dba28294 ]])
-	assert(sha3.hash256("") == bin.hextos[[
+	assert(sha3.sha256("") == bin.hextos[[
 		a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a ]])
-	assert(sha3.hash256("abc") == bin.hextos[[
+	assert(sha3.sha256("abc") == bin.hextos[[
 		3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532 ]])
-	assert(sha3.hash256(('1'):rep(128)) == bin.hextos[[
+	assert(sha3.sha256(('1'):rep(128)) == bin.hextos[[
 		fdfe32511b76f38a71a7ac95a4c98add2b41debab35e1b7dda8bb3b14c280533 ]])
 
 	-- check padding (all input sizes modulo 8)
@@ -35,8 +35,8 @@ local function test_sha3()
 		"abcdefgh", "abcdefghi", "abcdefghij"
 	}
 	local ht = {}  -- hex digest values
-	for _, s in ipairs(st) do insert(ht, sha3.hash256(s)) end
-	for _, s in ipairs(st) do insert(ht, sha3.hash512(s)) end
+	for _, s in ipairs(st) do insert(ht, sha3.sha256(s)) end
+	for _, s in ipairs(st) do insert(ht, sha3.sha512(s)) end
 	-- results
 	local res = concat(ht)
 

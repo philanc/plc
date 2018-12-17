@@ -1,7 +1,12 @@
--- Copyright (c) 2015  Phil Leblanc  -- see LICENSE file
+-- Copyright (c) 2018  Phil Leblanc  -- see LICENSE file
 ------------------------------------------------------------------------
--- crude performance tests
 
+--[[ 
+
+=== plc - crude performance tests
+
+
+]]
 
 local bin = require "plc.bin"
 local stx = bin.stohex
@@ -128,23 +133,37 @@ end --perf_xor
 
 ------------------------------------------------------------
 
-local function perf_sha2_sha3()
+local function perf_sha3()
+	local et, h  -- encrypted text, hash/hmac
+
+	print("Plain text size (in MBytes):", sizemb)
+	print("Times:  elapsed (wall) and CPU (clock) in seconds")
+
+	start("sha3-256")
+	h = sha3.sha256(plain)
+	done()
+
+	start("sha3-512")
+	h = sha3.sha512(plain)
+	done()
+end --perf_sha3
+
+------------------------------------------------------------
+
+local function perf_sha2()
 	local et, h  -- encrypted text, hash/hmac
 
 	print("Plain text size (in MBytes):", sizemb)
 	print("Times:  elapsed (wall) and CPU (clock) in seconds")
 
 	start("sha2-256")
-	h = sha2.hash256(plain)
+	h = sha2.sha256(plain)
 	done()
 
-	start("sha3-256")
-	h = sha3.hash256(plain)
+	start("sha2-512")
+	h = sha2.sha512(plain)
 	done()
 
-	start("sha3-512")
-	h = sha3.hash512(plain)
-	done()
 end --perf_sha2_sha3
 
 ------------------------------------------------------------
@@ -333,14 +352,15 @@ end	--perf_md5
 --~ perf_encrypt()
 --~ perf_encrypt20()
 --~ perf_xor()
---~ perf_sha2_sha3()
+perf_sha2()
+--~ perf_sha3()
 --~ perf_misc()
 --~ perf_xtea()
 --~ perf_blake2b()
 --~ perf_norx()
 --~ perf_norx32()
 --~ perf_md5()
-perf_morus()
+--~ perf_morus()
 
 --[[
 
@@ -376,6 +396,9 @@ Times:  elapsed (os.time) and CPU (os.clock) in seconds
 tests run on a laptop - Linux 4.4 x86_64 CPU i5 M430 @ 2.27 GHz
 (Lua 5.3.3 64 bits)
 
+- sha2-256                  9      9.04   
+- sha2-512                  7      6.36   
+
 - blake2b-512               9      9.19
 - blake2b-256               9      9.21
 - md5                       4      3.70
@@ -393,53 +416,14 @@ tests run on a laptop - Linux 4.4 x86_64 CPU i5 M430 @ 2.27 GHz
 - morus encrypt (100mb)    16     15.96    !! 1.6s for 10MB !!
 - morus decrypt (100mb)    15     14.79
 
-- x_hash (morus) (100mb)   10     10.06  !! 1.0s for 10MB !!
-
 --- morus with lua 5.4.0-work1 64 bits, same laptop
 - morus encrypt (100mb)           12.29    !! 1.2s for 10MB !!
 - morus decrypt (100mb)           11.09
-- x_hash        (100mb)            7.43    !! 0.75s for 10MB !!
 
 --- morus with lua 5.4.0-work2 64 bits, same laptop
 - morus encrypt (100mb)           12.33   ~1x vs work1
 - morus decrypt (100mb)           11.41   0.97x
-- x_hash        (100mb)            7.88   0.94x
 
 
----
-tests on desktop HP (windows 7 64bit SP1, cpu intel core i5-3470 3.20ghz
-(Lua 5.3.3 32 bits, windows)
-
-- sha2-256                 22     21.76
-- sha3-256                 34     34.59
-- sha3-512                 65     64.82
-- blake2b-512              13     13.28
-- blake2b-256              13     13.29
-
-- rc4 raw                  10     10.20
-- rabbit                    6      6.41
-- chacha20                 12     11.23
-- xtea ctr                 13     13.24
-- xtea (encr block only)   11     11.26
-
-- norx encrypt              5      4.80
-- norx decrypt              5      4.46
-- norx encrypt 10mb (4k messages)       5      5.10
-- norx decrypt 10mb (4k messages)       5      4.85
-- norx32 encrypt           11     10.76
-- norx32 decrypt           10     10.03
-
-	-- norx w ROTR64 and H as functions:
-	- norx encrypt              8      7.92
-	- norx decrypt              7      7.36
-
-- xor1, k16                 8      8.30
-- xor8, k16                 1      1.39
-- base64 encode             9      9.28   (res: 13.3MB)
-- base64 decode             8      7.55   (res: 7.5MB)
-- adler-32                  1      1.75
-- crc-32                    3      2.37
-- crc-32 (no table)         8      8.21
-- poly1305 hmac             1      1.56
 
 ]]

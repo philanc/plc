@@ -17,10 +17,10 @@ http://competitions.cr.yp.to/caesar-submissions.html
    
 ---
 
-NOTE: I have added an experimental hash / XOF function based on the 
+NOTE: I have added an experimental XOF/hash function based on the 
 Morus permutation. It is NOT part of the Morus submission and has NOT 
 been analyzed / reviewed. The design is certainly not final.  
-=> DON'T USE THE HASH FUNCTION for any serious purpose.
+=> DON'T USE THE XOF/HASH FUNCTION for any serious purpose.
 
 ]]
 
@@ -447,7 +447,7 @@ local function x_hash(m, diglen, key)
 	-- !! EXPERIMENTAL - NOT DESIGNED BY THE MORUS AUTHORS !! 
 	-- !! => DON'T USE IT FOR ANYTHING !! 
 	--
-	-- a keyed hash/xof function based on morus encryption
+	-- a keyed xof/hash function based on morus encryption
 	-- m is the message to hash
 	-- diglen is the optional length of the digest in bytes (defaults 
 	-- to 32 - can be any number > 1)
@@ -509,10 +509,11 @@ local function x_hash(m, diglen, key)
 	assert(#dig == diglen)
 	return dig
 end--x_hash()
-	
+
 
 ------------------------------------------------------------------------
 -- the morus module
+
 return {
 	-- the core permutation is exposed to facilitate tests 
 	state_update = state_update,
@@ -524,7 +525,7 @@ return {
 	nonce_size = 16,
 	variant = "Morus-1280",
 	--
-	hash = x_hash,  -- !! experimental !!
+	x_hash = x_hash,  -- experimental!! - don't use it for anything!!
 	
 }
 
