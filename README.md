@@ -144,7 +144,7 @@ Hash
 	- adler-32                1.3  
 	- crc-32                  1.8  
 
-Elliptic curve
+Elliptic curve (ec25519)
 	- scalarmult (100 times) 18.9
 
 ```
