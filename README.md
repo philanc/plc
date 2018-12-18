@@ -122,27 +122,30 @@ They have been collected on a laptop with Linux x86_64,  CPU i5 M430 @ 2.27 GHz.
 Plain text size: 10 MBytes. Elapsed time in seconds
 
 Encryption
-	- rc4 raw           7.4  
-	- rabbit            4.7  
-	- xtea ctr         11.0  
-	- chacha20          7.9  
-	- salsa20           8.0  
-	- norx              4.5  
-	- norx32            9.2  
-	- morus t           1.7
+	- rc4 raw                 7.4  
+	- rabbit                  4.7  
+	- xtea ctr               11.0  
+	- chacha20                7.9  
+	- salsa20                 8.0  
+	- norx aead               4.5  
+	- norx32 aead             9.2  
+	- morus aead              1.7
 
 Hash
-	- md5               3.7  
-	- sha2-256          9.1  
-	- sha2-512          6.4  
-	- sha3-256         23.2  
-	- sha3-512         43.0  
-	- blake2b-512       9.4  
-	- blake2b-256       9.3  
-	- poly1305 hmac     1.2  
+	- md5                     3.7  
+	- sha2-256                9.1  
+	- sha2-512                6.4  
+	- sha3-256               23.2  
+	- sha3-512               43.0  
+	- blake2b-512             9.4  
+	- blake2b-256             9.3  
+	- poly1305 hmac           1.2  
 
-	- adler-32          1.3  
-	- crc-32            1.8  
+	- adler-32                1.3  
+	- crc-32                  1.8  
+
+Elliptic curve
+	- scalarmult (100 times) 18.9
 
 ```
 
