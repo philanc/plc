@@ -116,37 +116,33 @@ Implementations that may come some day:
 These crude numbers give an idea of the relative performance of the algorithms. 
 They correspond to the encryption or the hash of a 10 MB string (10 * 1024 * 1024 bytes). 
 
-They have been collected on a laptop with Linux x86_64,  CPU i5 M430 @ 2.27 GHz.
-Lua version is 5.3.3 (ELF 64 bits) - see file 'test_perf.lua'; uncomment whatever test you want to run at the end. 
+They have been collected on a laptop with Linux x86_64,  CPU i5 M430 @ 2.27 GHz. Lua version is 5.3.4 (ELF 64 bits) - see file 'test_perf.lua'; uncomment whatever test you want to run at the end. 
 
 ```
 Plain text size: 10 MBytes. Elapsed time in seconds
 
 Encryption
-
-	- morus                     1.7
-	- norx                      4
-	- norx32                    8   
-
-	- rabbit                    5
-	- chacha20                  8
-	- salsa20                   8
-	- rc4                       8
-	- xtea ctr                 11  
-	- xor8                      1
+	- rc4 raw           7.4  
+	- rabbit            4.7  
+	- xtea ctr         11.0  
+	- chacha20          7.9  
+	- salsa20           8.0  
+	- norx              4.5  
+	- norx32            9.2  
+	- morus t           1.7
 
 Hash
-	- blake2b-512               9
-	
-	- sha2-256                 10 
-	- sha3-256                 23
-	- sha3-512                 43
-	- md5                       4
-	
-	- poly1305 hmac             1
+	- md5               3.7  
+	- sha2-256          9.1  
+	- sha2-512          6.4  
+	- sha3-256         23.2  
+	- sha3-512         43.0  
+	- blake2b-512       9.4  
+	- blake2b-256       9.3  
+	- poly1305 hmac     1.2  
 
-	- adler-32                  1 
-	- crc-32                    2 
+	- adler-32          1.3  
+	- crc-32            1.8  
 
 ```
 
