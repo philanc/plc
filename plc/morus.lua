@@ -442,20 +442,20 @@ local function decrypt(k, iv, e, adlen)
 end--decrypt()
 
 
-local function x_hash(m, diglen, key)
+local function xof(m, outlen, key)
 	--
 	-- !! EXPERIMENTAL - NOT DESIGNED BY THE MORUS AUTHORS !! 
 	-- !! => DON'T USE IT FOR ANYTHING !! 
 	--
-	-- a keyed xof/hash function based on morus encryption
-	-- m is the message to hash
-	-- diglen is the optional length of the digest in bytes (defaults 
-	-- to 32 - can be any number > 1)
-	-- key is an optional string that is mixed to the initial hash state.
-	-- key can be any length. if longer than 32 bytes, only the first 32
-	-- bytes are used.
+	-- a keyed extendable-output function (XOF) built on the morus
+	-- permutation.
+	-- m is the message to hash. outlen is the optional length of 
+	-- the output in bytes (defaults to 32 - can be any number > 1)
+	-- key is an optional string that is mixed to the initial 
+	-- permutation state. key can be any length. if longer 
+	-- than 32 bytes, only the first 32 bytes are used.
 	--
-	diglen = diglen or 32 
+	outlen = outlen or 32 
 	key = key or ""
 	key = key .. ('\0'):rep(32 - #key)
 	local mlen = #m
@@ -463,7 +463,7 @@ local function x_hash(m, diglen, key)
 	local blk, blen
 	--
 	--initialize state s:
-	local iv = spack("<I8I8", diglen, 0)
+	local iv = spack("<I8I8", outlen, 0)
 	local s = state_init(key, iv)
 	--
 	-- absorb m
@@ -491,24 +491,24 @@ local function x_hash(m, diglen, key)
 	-- mix the state before squeezing (mostly useful for short messages)
 	for i = 1, 16 do state_update(s, 0, 0, 0, 0) end
 	--
-	-- squeeze digest
-	local digt = {} -- used to collect digest blocks
+	-- squeeze output
+	local outt = {} -- used to collect output blocks
 	local n = 0
 	repeat
 		blk = spack("<I8I8I8I8", s[1],s[2],s[3],s[4])
 		state_update(s, 0, 0, 0, 0)
 		-- collect 32 (rate) bytes at each turn
 		n = n + 32
-		if n > diglen then
-			blk = blk:sub(1, diglen - (n - 32))
-			n = diglen
+		if n > outlen then
+			blk = blk:sub(1, outlen - (n - 32))
+			n = outlen
 		end
-		insert(digt, blk)
-	until n >= diglen
-	local dig = concat(digt)
-	assert(#dig == diglen)
-	return dig
-end--x_hash()
+		insert(outt, blk)
+	until n >= outlen
+	local out = concat(outt)
+	assert(#out == outlen)
+	return out
+end--xof()
 
 
 ------------------------------------------------------------------------
@@ -525,7 +525,7 @@ return {
 	nonce_size = 16,
 	variant = "Morus-1280",
 	--
-	x_hash = x_hash,  -- experimental!! - don't use it for anything!!
+	xof = xof,  -- experimental!! - don't use it for anything!!
 	
 }
 
