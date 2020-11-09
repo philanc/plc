@@ -66,7 +66,7 @@ What this collection is *not*:
 
 Encryption
 
-* Morus, an *amazingly* fast (see performance below) authenticated encryption algorithm with associated data (AEAD). Morus is a finalist (round 4) in the [CAESAR](http://competitions.cr.yp.to/caesar-submissions.html) competition - see http://www3.ntu.edu.sg/home/wuhj/research/caesar/caesar.html
+* Morus, an *amazingly* fast (see performance below) authenticated encryption algorithm with associated data (AEAD). Morus is a finalist (round 4) in the [CAESAR](http://competitions.cr.yp.to/caesar-submissions.html) competition - see https://personal.ntu.edu.sg/wuhj/research/caesar/caesar.html
 
 * NORX, a *very* fast authenticated encryption algorithm with associated data (AEAD). NORX is a 3rd-round candidate to [CAESAR](http://competitions.cr.yp.to/caesar.html). This Lua code implements the default NORX 64-4-1 variant (state is 16 64-bit words, four rounds, no parallel execution, key and nonce are 256 bits) - see https://norx.io/
 

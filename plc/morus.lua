@@ -10,7 +10,7 @@
    16 or 32-byte key, 16-byte nonce
 
 Morus Authors: Hongjun Wu, Tao Huang - Nanyang Tech University (NTU)
-http://www3.ntu.edu.sg/home/wuhj/research/caesar/caesar.html
+https://personal.ntu.edu.sg/wuhj/research/caesar/caesar.html
 
 Morus is a finalist (round 4) in the CAESAR competition
 http://competitions.cr.yp.to/caesar-submissions.html
