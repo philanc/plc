@@ -8,7 +8,7 @@ norx32 - authenticated encryption with associated data (AEAD)
 NORX is a high-performance authenticated encryption algorithm
 supporting associated data (AEAD). It has been designed by
 Jean-Philippe Aumasson, Philipp Jovanovic and Samuel Neves.
-See https://norx.io/
+See https://github.com/norx/resources
 
 NORX is a submission to CAESAR (Competition for Authenticated
 Encryption: Security, Applicability, and Robustness) http://competitions.cr.yp.to/caesar.html

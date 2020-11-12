@@ -68,7 +68,7 @@ Encryption
 
 * Morus, an *amazingly* fast (see performance below) authenticated encryption algorithm with associated data (AEAD). Morus is a finalist (round 4) in the [CAESAR](http://competitions.cr.yp.to/caesar-submissions.html) competition - see https://personal.ntu.edu.sg/wuhj/research/caesar/caesar.html
 
-* NORX, a *very* fast authenticated encryption algorithm with associated data (AEAD). NORX is a 3rd-round candidate to [CAESAR](http://competitions.cr.yp.to/caesar.html). This Lua code implements the default NORX 64-4-1 variant (state is 16 64-bit words, four rounds, no parallel execution, key and nonce are 256 bits) - see https://norx.io/
+* NORX, a *very* fast authenticated encryption algorithm with associated data (AEAD). NORX is a 3rd-round candidate to [CAESAR](http://competitions.cr.yp.to/caesar.html). This Lua code implements the default NORX 64-4-1 variant (state is 16 64-bit words, four rounds, no parallel execution, key and nonce are 256 bits) - see https://github.com/norx/resources
 
 * NORX32, a variant of NORX intended for smaller architectures (32-bit and less). Key and nonce are 128 bits. (Note that this NORX32 Lua implementation is half as fast as the default 64-bit NORX. It is included here only for compatibility with other implementations - In Lua, use the default NORX implementation!)
 

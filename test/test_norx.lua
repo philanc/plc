@@ -15,7 +15,8 @@ local hextos = bin.hextos
 ------------------------------------------------------------------------
 
 local function test_norx()
-	-- test vector from the specification at https://norx.io/data/norx.pdf
+	-- test vector from the specification at 
+	-- https://github.com/norx/resources/blob/master/specs/norxv30.pdf
 	-- (norx here is the default NORX 64-4-1 variant)
 	local t
 	-- key: 00 01 02 ... 1F  (32 bytes)
