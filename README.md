@@ -1,3 +1,5 @@
+![CI](https://github.com/philanc/plc/workflows/CI/badge.svg)
+
 ## PLC - Pure Lua Crypto
 
 A small collection of crpytographic functions, and related utilities, 
