@@ -58,6 +58,29 @@ local function step(s, i, j)
 	return s, i, j, k
 end
 
+--[[
+local enc = newRc4(key)
+local dec = newRc4(key)
+
+local r = enc('hello')
+local r2 = enc('world')
+
+print(dec(r))
+print(dec(r2))
+--]]
+local function newRc4(key)
+	local s, i, j = keysched(key), 0, 0
+	return function(plain)
+		local k
+		local t = {}
+		for n = 1, #plain do
+			s, i, j, k = step(s, i, j)
+			t[n] = char(byte(plain, n) ~ k)
+		end
+		return concat(t)
+	end
+end
+
 local function rc4raw(key, plain)
 	-- raw encryption
 	-- key must be a 16-byte string
@@ -94,6 +117,7 @@ local function rc4(key, plain, drop)
 end
 
 return 	{ -- module
+	newRc4 = newRc4,
 	rc4raw = rc4raw,
 	rc4 = rc4,
 	encrypt = rc4,
