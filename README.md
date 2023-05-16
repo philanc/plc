@@ -9,7 +9,7 @@ implemented  in pure Lua  (version 5.3 or above)
 
 May 2023
 
-Added *Ascon-128*. Ascon offers authenticated encryption with associated data (AEAD), hash, XOF, MAC and PRF. Ascon has won the NIST Lightweight Cryptography competition (2023) and the CAESAR competition (2019) for lightweight authenticated encryption.
+* Added *Ascon-128*. Ascon offers authenticated encryption with associated data (AEAD), hash, XOF, MAC and PRF. Ascon has won the NIST Lightweight Cryptography competition (2023) and the CAESAR competition (2019) for lightweight authenticated encryption.
 
 December 2018
 
