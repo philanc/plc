@@ -7,9 +7,13 @@ implemented  in pure Lua  (version 5.3 or above)
 
 ### Recent changes
 
+May 2023
+
+Added *Ascon-128*. Ascon offers authenticated encryption with associated data (AEAD), hash, XOF, MAC and PRF. Ascon has won the NIST Lightweight Cryptography competition (2023) and the CAESAR competition (2019) for lightweight authenticated encryption.
+
 December 2018
 
-* Added XChaCha20 encryption (in plc/chacha20.lua)
+* Added *XChaCha20* encryption (in plc/chacha20.lua)
 
 October 2018
 
