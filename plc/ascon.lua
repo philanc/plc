@@ -9,6 +9,8 @@ This implements the Ascon128 variant.
 
 ]]
 
+he = require"he"
+s2x = he.stohex
 
 local spack, sunpack = string.pack, string.unpack
 local insert = table.insert
@@ -21,15 +23,18 @@ local CRYPTO_BYTES = 32
 local ASCON_HASH_BYTES = 32
 local ASCON_XOF_BYTES = 0     -- named ASCON_HASH_BYTES in ref/xof
 local ASCON_HASH_ROUNDS = 12
+local CRYPTO_ABYTES = 16      -- auth tag size
+local CRYPTO_NPUBBYTES = 16   -- nonce size
 
 -- from constants.h
 --- [ compute the constants in *each directory* ... ]
 local ASCON_HASH_RATE = 8
-local ASCON_HASH_IV = 0x00400c0000000100
-local ASCON_XOF_IV =  0x00400c0000000000
-local ASCON_PRF_IV = 0x80808c0000000000
-local ASCON_MAC_IV = 0x80808c0000000080
-
+local ASCON_128_RATE =  8
+local ASCON_HASH_IV =  0x00400c0000000100
+local ASCON_XOF_IV =   0x00400c0000000000
+local ASCON_PRF_IV =   0x80808c0000000000
+local ASCON_MAC_IV =   0x80808c0000000080
+local ASCON_128_IV =   0x80400c0600000000
 
 local s0, s1, s2, s3, s4  -- ascon state - 5 * uint64
 
@@ -65,9 +70,8 @@ local function ROUND(C)
 	s4 = t4 ~ ROR(t4, 7) ~ ROR(t4, 41)
 end--ROUND
 
-local function P12()  -- the ascon128 permutation
+local function P12()
 	ROUND(0xf0)
---~ print(s0, s1, s2, s3, s4)
 	ROUND(0xe1)
 	ROUND(0xd2)
 	ROUND(0xc3)
@@ -80,6 +84,15 @@ local function P12()  -- the ascon128 permutation
 	ROUND(0x5a)
 	ROUND(0x4b)
 end--P12
+
+local function P6()
+	ROUND(0x96)
+	ROUND(0x87)
+	ROUND(0x78)
+	ROUND(0x69)
+	ROUND(0x5a)
+	ROUND(0x4b)
+end--P6
 
 local function hash(str, xoflen)
 	-- str: the string to hash
@@ -172,7 +185,6 @@ local function prf_or_mac(iv, k, str, outlen)
 	
 	-- absorb last block
 	lastblock = str:sub(ix) 
-print("lastblock#", #lastblock)
 	-- pad the last block
 	-- ensure there are enough zero bytes after the padding byte
 	-- (the block must be at least 32-byte long
@@ -214,6 +226,191 @@ local function mac(k, str)
 	return prf_or_mac(ASCON_MAC_IV, k, str, 16)
 end
 
+local function aead_encrypt(k, n, m, ad)
+	-- k 16-byte key
+	-- n 16-byte nonce
+	-- m plaintext message to encrypt
+	-- ad associated data (default to empty string)
+	ad = ad or ""
+	assert(#k == 16, "key length error. must be 16.")
+	local K0 = sunpack(">I8", k, 1)
+	local K1 = sunpack(">I8", k, 9)
+	local N0 = sunpack(">I8", n, 1)
+	local N1 = sunpack(">I8", n, 9)
+	
+	-- initialize
+	s0 = ASCON_128_IV
+	s1 = K0
+	s2 = K1
+	s3 = N0
+	s4 = N1
+	P12()
+	s3 = s3 ~ K0
+	s4 = s4 ~ K1
+	
+	-- associated data
+	local adlen = #ad
+	if adlen > 0 then
+	
+		-- full associated data blocks 
+		local adlen = #ad
+		local i = 1  -- index of current block in ad
+		local x
+		while adlen >= ASCON_128_RATE do
+			-- get 8 bytes as a big-endian uint64
+			x, i = sunpack(">I8", ad, i) 
+			s0 = s0 ~ x
+			P6()
+			adlen = adlen - ASCON_128_RATE
+		end
+		
+		-- final associated data block
+		local lastblock = ad:sub(i)
+		-- pad the last block. 
+		-- ensure there are enough zero bytes after the padding byte
+		lastblock = lastblock .. "\x80\0\0\0\0\0\0\0\0"
+		x = sunpack(">I8", lastblock)
+		s0 = s0 ~ x
+		P6()
+	end--associated data
+	
+	-- domain separation
+	s4 = s4 ~ 1
+	
+	-- full plaintext blocks
+	local t = {}
+	local mlen = #m
+	i = 1  -- index of current block in m
+	while mlen >= ASCON_128_RATE do
+		-- get 8 bytes as a big-endian uint64
+		x, i = sunpack(">I8", m, i) 
+		s0 = s0 ~ x
+		x = spack(">I8", s0)
+		insert(t, x)
+		P6()
+		mlen = mlen - ASCON_128_RATE
+	end
+	
+	-- final plaintext block
+	lastblock = m:sub(i)
+	-- pad the last block. 
+	-- ensure there are enough zero bytes after the padding byte
+	lastblock = lastblock .. "\x80\0\0\0\0\0\0\0\0"
+	x = sunpack(">I8", lastblock)
+	s0 = s0 ~ x
+	x = spack(">I8", s0)
+	x = x:sub(1, mlen)
+	insert(t, x)
+	
+	-- finalize
+	s1 = s1 ~ K0
+	s2 = s2 ~ K1
+	P12()
+	s3 = s3 ~ K0
+	s4 = s4 ~ K1
+	
+	-- set tag
+	insert(t, spack(">I8", s3))
+	insert(t, spack(">I8", s4))
+	
+	return table.concat(t, "")
+end--aead_encrypt
+
+
+local function aead_decrypt(k, n, c, ad)
+	ad = ad or ""
+	assert(#k == 16, "key length error. must be 16.")
+	local K0 = sunpack(">I8", k, 1)
+	local K1 = sunpack(">I8", k, 9)
+	local N0 = sunpack(">I8", n, 1)
+	local N1 = sunpack(">I8", n, 9)
+	s0 = ASCON_128_IV
+	s1 = K0
+	s2 = K1
+	s3 = N0
+	s4 = N1
+	P12()
+	s3 = s3 ~ K0
+	s4 = s4 ~ K1
+
+	-- associated data
+	local adlen = #ad
+	if adlen > 0 then
+		-- full associated data blocks 
+		local adlen = #ad
+		local i = 1  -- index of current block in ad
+		local x
+		while adlen >= ASCON_128_RATE do
+			-- get 8 bytes as a big-endian uint64
+			x, i = sunpack(">I8", ad, i) 
+			s0 = s0 ~ x
+			P6()
+			adlen = adlen - ASCON_128_RATE
+		end
+		
+		-- final associated data block
+		local lastblock = ad:sub(i)
+		-- pad the last block. 
+		-- ensure there are enough zero bytes after the padding byte
+		lastblock = lastblock .. "\x80\0\0\0\0\0\0\0\0"
+		x = sunpack(">I8", lastblock)
+		s0 = s0 ~ x
+		P6()
+	end--associated data
+	
+	-- domain separation
+	s4 = s4 ~ 1
+	
+	-- decrypt full ciphertext blocks
+	local clen = #c
+	clen = clen - CRYPTO_ABYTES
+	local mlen = clen
+	local t = {}
+	local i = 1
+	local x, c0
+	while clen >= ASCON_128_RATE do
+		c0, i = sunpack(">I8", c, i) 
+		x = spack(">I8", c0 ~ s0)
+		insert(t, x)
+		s0 = c0
+		P6()
+		clen = clen - ASCON_128_RATE
+	end
+	
+	-- decrypt final ciphertext block
+	local lastblock = c:sub(i, i+clen-1) .. "\0\0\0\0\0\0\0\0"
+	c0, i = sunpack(">I8", lastblock, 1)
+	x = spack(">I8", c0 ~ s0)
+	x = x:sub(1, clen)
+	insert(t, x)
+	s0 = s0 & (0xffffffffffffffff >> (clen * 8))
+	s0 = s0 | c0
+	s0 = s0 ~ ( 0x80 << (56 - clen*8 ))
+	
+	-- finalize
+	s1 = s1 ~ K0
+	s2 = s2 ~ K1
+	P12()
+	s3 = s3 ~ K0
+	s4 = s4 ~ K1
+	
+--~ 	-- display decr tag:
+--~ 	print("decr tag", s2x(spack(">I8>I8", s3, s4)))
+--~ 	print("cmsg tag", s2x(c:sub(-16)))
+	
+	-- verify tag
+	local T0, T1 = sunpack(">I8>I8", c, #c-15)
+	local r = (T0 == s3 and T1 == s4) -- not constant time :-)
+	-- tmp: check decryption w/o auth
+	if r then 
+		return table.concat(t, "")
+	else
+		return nil, "decryption error"
+	end
+
+end--aead_decrypt
+
+
 ------------------------------------------------------------------------
 -- the ascon module
 
@@ -221,16 +418,7 @@ return {
 	hash = hash,
 	mac = mac,
 	prf = prf,
-
+	aead_encrypt = aead_encrypt,
+	aead_decrypt = aead_decrypt,
 }
-
-he = require"he"
-s2x = he.stohex
-
-h = mac("abcdefghijklmnop", "ascon")
-print('prf/mac', #h, s2x(h))
-h = prf("abcdefghijklmnop", "ascon")
-print('prf/mac', #h, s2x(h))
-h = prf("abcdefghijklmnop", "ascon", 23)
-print('prf/mac', #h, s2x(h))
 
