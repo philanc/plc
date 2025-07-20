@@ -51,7 +51,7 @@ local k256 = {
 }
 
 local function pad64(msg, len)
-	local extra = 64 - ((len + 1 + 8) % 64)
+	local extra = (64 - ((len + 1 + 8) % 64)) % 64
 	len = spack(">I8", len * 8)    -- original len in bits, coded
 	msg = msg .. "\128" .. string.rep("\0", extra) .. len
 	assert(#msg % 64 == 0)
@@ -147,7 +147,7 @@ local k512 = {
 }
 
 local function pad128(msg, len)
-	local extra = 128 - ((len + 1 + 8) % 128)
+	local extra = (128 - ((len + 1 + 8) % 128)) % 128
 	len = spack(">I8", len * 8)    -- original len in bits, coded
 	msg = msg .. "\128" .. string.rep("\0", extra) .. len
 	assert(#msg % 128 == 0)
