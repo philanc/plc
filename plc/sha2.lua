@@ -147,10 +147,10 @@ local k512 = {
 }
 
 local function pad128(msg, len)
-	local extra = (128 - ((len + 1 + 8) % 128)) % 128
-	len = spack(">I8", len * 8)    -- original len in bits, coded
+	local extra = (128 - ((len + 1 + 16) % 128)) % 128
+	-- msg length in bit is encoded as a **128**-bit big endian integer
+	len = spack(">I16", len * 8)    -- original len in bits, encoded
 	msg = msg .. "\128" .. string.rep("\0", extra) .. len
-	assert(#msg % 128 == 0)
 	return msg
 end
 
