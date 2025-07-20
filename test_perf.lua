@@ -26,6 +26,7 @@ local app, concat = table.insert, table.concat
 local char, byte, strf = string.char, string.byte, string.format
 
 ------------------------------------------------------------------------
+local ascon = require "plc.ascon"
 local rc4 = require "plc.rc4"
 local rabbit = require "plc.rabbit"
 local cha = require "plc.chacha20"
@@ -261,7 +262,7 @@ local function perf_morus()
 	local k = ('k'):rep(16)  -- key
 	local n = ('n'):rep(16)  -- nonce
 	local a = ('a'):rep(16)  -- ad  (61 61 ...)
-	local sizemb = 100 
+	local sizemb = 100
 	local m = ('m'):rep(sizemb * 1024 * 1024)
 
 	for j = 1, 1 do
@@ -273,12 +274,36 @@ local function perf_morus()
 		assert(p == m)
 		done()
 		start("morus-based xof", "100mb")
-		local c = morus.x_hash(m)
+		local c = morus.xof(m)
 		done()
 
 	end
 	--
 end	--perf_morus
+------------------------------------------------------------
+
+local function perf_ascon()
+	local k = ('k'):rep(16)  -- key
+	local n = ('n'):rep(16)  -- nonce
+	local a = ('a'):rep(16)  -- ad  (61 61 ...)
+	local sizemb = 10
+	local m = ('m'):rep(sizemb * 1024 * 1024)
+
+	for j = 1, 1 do
+		start("ascon encrypt")
+		local c = ascon.aead_encrypt(k, n, m)
+		done()
+		start("ascon decrypt")
+		local p = ascon.aead_decrypt(k, n, c)
+		assert(p == m)
+		done()
+		start("ascon hash", "100mb")
+		local c = ascon.hash(m)
+		done()
+
+	end
+	--
+end	--perf_ascon
 
 ------------------------------------------------------------
 
@@ -372,6 +397,11 @@ print(_VERSION)
 print("Plain text: 10 MBytes except where noted")
 print("Elapsed times in seconds")
 
+perf_morus()
+perf_ascon()
+perf_encrypt20()
+os.exit()
+
 print("\n-- hash \n")
 
 perf_md5()
@@ -387,6 +417,7 @@ perf_encrypt20()
 perf_norx()
 perf_norx32()
 perf_morus()
+perf_ascon()
 
 print("\n-- elliptic curve \n")
 
